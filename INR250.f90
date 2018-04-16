@@ -1,0 +1,75 @@
+!
+!--------
+      SUBROUTINE INR250(MZ,ISEED,KPTR)
+!
+! INITIALIZATION ROUTINE FOR R250 RANDOM NUMBER GENERATOR
+! FOR 32 BIT COMPUTERS ONLY !
+! USES SUN FOR STARTUP
+!
+      INTEGER MZ(250)
+      INTEGER ISEED, KPTR
+!
+      INTEGER IUF(31),IGF(31)
+      INTEGER IADDR1(1000),IADDR2(1000)
+      REAL RRANF(2000)
+!
+!
+      KPTR = 1
+!
+      DO 100 I = 1,30
+        IGF(I) = 2 ** (I - 1)
+        IUF(I) = 2 ** I - 1
+ 100  CONTINUE
+!
+      IGF(31) = 2**30
+      IUF(31) = 2**30 + (2**30 - 1)
+!
+      CALL SUN(ISEED,RRANF,250)
+!
+! MAP THE REALS TO POSITIVE INTEGERS
+!
+      DO 200 I = 1,250
+        MZ(I) = IDNINT(DBLE(RRANF(I))*DBLE(FLOAT(IUF(31))))
+ 200  CONTINUE
+!
+! SPECIAL TREATMENT OF THE FIRST 31 NUMBERS
+!
+      DO 300 I = 1,31
+        MZ(I) = IOR(MZ(I),IGF(I))
+ 300  CONTINUE
+!
+      DO 400 I = 1,31
+        MZ(I) = IAND(MZ(I),IUF(I))
+ 400  CONTINUE
+!
+! MIXING
+!
+      CALL SUN(ISEED,RRANF,2000)
+!
+      DO 500 I = 1,1000
+        IADDR1(I) = 1. + 250. * RRANF(I)
+        IADDR2(I) = 1. + 250. * RRANF(I + 1000)
+ 500  CONTINUE
+!
+      DO 600 I = 1,1000
+        NTEMP         = MZ(IADDR1(I))
+        MZ(IADDR1(I)) = MZ(IADDR2(I))
+        MZ(IADDR2(I)) = NTEMP
+ 600  CONTINUE
+!
+! WARMING UP
+!
+      DO 800 I = 1,8
+!
+        DO 710  K = 1,147
+          MZ(K) = IEOR(MZ(K),MZ(K + 103))
+ 710    CONTINUE
+!
+        DO 720 K = 148,250
+          MZ(K) = IEOR(MZ(K),MZ(K - 147))
+ 720    CONTINUE
+!
+ 800  CONTINUE
+!
+      RETURN
+      END
