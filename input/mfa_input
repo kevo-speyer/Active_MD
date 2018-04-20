@@ -1,0 +1,129 @@
+             2 initial integer starting time
+             0 number of relaxation steps
+       1000000 number of observation steps
+          2000 # of steps between configuration storage
+  0.200000E-03 time step increment
+ 
+     0.80000 obsolete
+     0.80000 temperature
+     0.80000 obsolete
+ 
+   obsolete: flagg for constraining wall atoms
+  0.100000E+01 spacing betw wall units in x direc
+  0.100000E+01 spacing betw wall units in y direc
+  0.400000E+02 initial inter-wall spacing
+ 
+  0.100000E+01 mass
+  0.000000E+00 Lennard Jones epsilon
+  0.100000E+01 Lennard Jones epsilon
+  0.333000E+00 Lennard Jones epsilon
+  0.100000E+01 Lennard Jones epsilon
+  0.100000E+01 Lennard Jones sigma
+  0.02 friction constant
+  0.100000E+01 mass
+  0.100000E+01 Lennard Jones epsilon
+  0.100000E+01 Lennard Jones epsilon
+  0.333000E+00 Lennard Jones epsilon
+  0.100000E+01 Lennard Jones epsilon
+  0.100000E+01 Lennard Jones sigma
+  0.02 friction constant
+  0.100000E+01 mass
+  0.333000E+00 Lennard Jones epsilon
+  0.333000E+00 Lennard Jones epsilon
+  0.100000E+01 Lennard Jones epsilon
+  0.100000E+01 Lennard Jones epsilon
+  0.100000E+01 Lennard Jones sigma
+  0.02 friction constant
+  0.500000E+02 mass
+  0.100000E+01 Lennard Jones epsilon
+  0.100000E+01 Lennard Jones epsilon
+  0.100000E+01 Lennard Jones epsilon
+  0.100000E+01 Lennard Jones epsilon
+  0.100000E+01 Lennard Jones sigma
+  0.02 friction constant
+  0.000000E+00 spring const. to wall equil. sites
+  0.600000E+03 bending elastic constant
+  0.000000E+00 bending equilibrium angle
+  0.800000E+02 beta1 (deg), active parameter
+  0.880000E+02 beta2 (deg), active parameter
+  -0.05000E+00 act
+  0.800000E+03 k_spr_x, elastic constant, spring_array x direction
+  0.000000E+00 k_spr_y, elastic constant, spring_array x direction
+
+ 
+     311500381 seed for random number generator
+ 
+  0.300000E+02 effective spring constant within chain
+  0.150000E+01 max. spacing between neighbored monomers
+ 
+ 
+  flaggs and variables controlling boundary conditions
+ 
+             2             2             1
+  0.000000E+00  0.000000E+00  0.000000E+00
+  0.000000E+00  0.000000E+00  0.000000E+00
+ 
+  obsolete: f_minimize flagg to relax to next minimum
+  obsolete: n_list_up ,  # of steps between list up date
+ 
+ ----------  Additional info. Not used as input  ----------------
+ 
+            10  monomers per chain
+            12  number of 'brush' chains
+             0  number of fluid particles
+             0  number of droplet/melt chains
+             0  number of droplet/melt particles
+            30            20  number of wall cells in x-y direction
+ 
+             2  order of integrator
+     obsolete: ad_flag  flag for adsorbed or endgrafted
+       endgrafted polymers
+    
+ * Using potential 9-3, for wall int.
+    
+ * Using DPD thermostat and Veloc. Verlet integration scheme.
+
+ *       DPD Friction value in all directions: gamma = 31.69790
+    
+  30.00000  20.00000  40.00000                                 MD Box dimensions
+   0.500000000E-02                          initial monomer density 
+         600.00000           0.01000              one wall area, grafting density     
+ 
+             11              7             15  binning boxes
+       2.727273       2.857143       2.666667  binning distances
+ 
+       4     300  max. observed and maximum allowed fl. binnings
+       0      16  max. observed and maximum allowed wa. binnings
+ 
+       3     256  max. observed and maximum allowed fl fl neighbors
+       0      32  max. observed and maximum allowed fl wa neighbors
+       0      32  max. observed and maximum allowed wa wa neighbors
+ 
+   0.000000E+00   0.000000E+00 wall_wall potential
+   0.000000E+00   0.000000E+00 wall_wall kinetic e
+   0.000000E+00   0.000000E+00 wall_wall total ene
+ 
+      16.4025       0.0272   total intramolecular energy per part.
+       0.0000       0.0000       intramolecular energy droplet/melt per part
+ 
+   0.188579E+02   0.480076E+00 fl_fl potential
+   0.829133E+00   0.108200E+01 fl_fl kinetic e
+   0.298324E+01   0.398934E+01 fl_fl total ene
+ 
+   0.193233E+02   0.111258E+01 total potential
+   0.829133E+00   0.108200E+01 total kinetic e
+   0.201524E+02   0.198096E+01 total total ene
+ 
+   0.000000E+00   0.000000E+00 average spacing
+ 
+ 
+        0.40954        0.00000        7.22130                                       Mean Rg^2 for brushes
+            NaN            NaN            NaN                                  Mean Rg^2 for droplet/melt
+            NaN            NaN            NaN                                            Mean total Rg^2 
+        0.91948        Mean Rg(z)^2-0,5*(Rg^2(x)+Rg^2(y))/sum(Rg^2) brushes
+            NaN           Mean Rg(z)^2-0,5*(Rg^2(x)+Rg^2(y))/sum(Rg^2) melt
+ 
+         0.00000         0.00000         0.00000          Mean total force on the wall  
+        0.0000000                           Shear stress 
+ 
+ 
