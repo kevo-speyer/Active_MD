@@ -147,19 +147,21 @@ do l = 1, n_chain
     !!! the last one. Further study of this modes excitation
     !!! is needed.
     !!! 
-    r_2rel = r0(:, n_mon+(l-1)*n_mon)- r0(:, 1+(l-1)*n_mon)  
-    cos_th = r_2rel(1)/SQRT(DOT_PRODUCT(r_2rel,r_2rel))
+    r_2rel = r0(:, n_mon+(l-1)*n_mon)- r0(:, 1+(l-1)*n_mon)  ! r_2rel = R_end-to-end
+    cos_th = r_2rel(1)/SQRT(DOT_PRODUCT(r_2rel,r_2rel)) !Rend projection in x coordinate
+    !The line above should be modified to implement a 3D activation model
+
     !k_old = k0(1+(l-1)*(n_mon-1))  ! storing old k
 
     if( cos_th.gt.cos_lim1 ) then  ! the "more horizontal" (1) section
         !print *, 'is in (1)'
-        k0(1+(l-1)*(n_mon-1)) = k_bend
+        k0(l) = k_bend
         !do i = 2, n_mon-1
         !    k0(i+(l-1)*(n_mon-1)) = k_bend                
         !end do
     else if( cos_th.lt.cos_lim2 ) then ! the "more vertical" (2) section 
         !print *, 'is in (2)'
-        k0(1+(l-1)*(n_mon-1)) = k_bend
+        k0(l) = k_bend
         !do i = 2, n_mon-1
         !    k0(i+(l-1)*(n_mon-1)) = k_bend                
         !end do
@@ -168,11 +170,11 @@ do l = 1, n_chain
         if( cos_mem(l).le.cos_lim2 ) then ! if it came from 2
 
             kick(l) = kick(l) + 15
-            k0(1+(l-1)*(n_mon-1)) = k_act !-.005*k_bend  ! soft k
+            k0(l) = k_act !-.005*k_bend  ! soft k
 
         else if( cos_mem(l).gt.cos_lim1 ) then ! if it came from 1
 
-            k0(1+(l-1)*(n_mon-1)) = k_bend   !
+            k0(l) = k_bend   !
 
         end if
     end if
@@ -182,6 +184,62 @@ end do
 
 case(4)
     ! This will be a completely active case
+
+case(5) ! 3D activation model    
+
+do l = 1, n_chain
+    !!! same as case 3, but in 3D. The angle of activation is not the projection of Rend
+    !!! in x. Now we inpect the projection of Rend in the direction of its elongation in the xy plane
+    !!! Basically this is lokking at its shadow.
+    !!! n_mon+(l-1)*n_mon is the last bead of chain l.
+    !!! We are triggering the active force using this bead.
+    !!! It is the most "non-arbitrary" way of setting this
+    !!! condition. We could use other beads, but they would 
+    !!! excite higher modes of the chain. In this work we 
+    !!! need the lowest frequency possible, so we picked 
+    !!! the last one. Further study of this modes excitation
+    !!! is needed.
+    !!! 
+    r_2rel = r0(:, n_mon+(l-1)*n_mon)- r0(:, 1+(l-1)*n_mon)  ! r_2rel = R_end-to-end
+    cos_th = sqrt( ( r_2rel(1)**2 + r_2rel(2)**2 ) / DOT_PRODUCT(r_2rel,r_2rel) )
+    !This is basicaly looking at the inbclination of Rend coordinate
+    !The line above should be modified to implement a 3D activation model
+
+    !k_old = k0(1+(l-1)*(n_mon-1))  ! storing old k
+
+    if( cos_th.gt.cos_lim1 ) then  ! the "more horizontal" (1) section
+        !print *, 'is in (1)'
+        k0(l) = k_bend
+        !do i = 2, n_mon-1
+        !    k0(i+(l-1)*(n_mon-1)) = k_bend                
+        !end do
+    else if( cos_th.lt.cos_lim2 ) then ! the "more vertical" (2) section 
+        !print *, 'is in (2)'
+        k0(l) = k_bend
+        !do i = 2, n_mon-1
+        !    k0(i+(l-1)*(n_mon-1)) = k_bend                
+        !end do
+    else ! the middle section
+        ! print *, 'middle and'
+        if( cos_mem(l).le.cos_lim2 ) then ! if it came from 2
+
+            kick(l) = kick(l) + 15
+            k0(l) = k_act !-.005*k_bend  ! soft k
+
+        else if( cos_mem(l).gt.cos_lim1 ) then ! if it came from 1
+
+            k0(l) = k_bend   !
+
+        end if
+    end if
+    ! write(55,*) cos_th, cos_lim1, cos_lim2
+    cos_mem(l) = cos_th  !saving old position
+end do
+
+
+
+
+
 
 end select
 

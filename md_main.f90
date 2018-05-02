@@ -157,7 +157,7 @@ ALLOCATE(f_new(3,n_part))
 
 
 #ifdef ACTIVE_BRUSH
-        call metronome(3) ! adds active brush forces
+        call metronome(5) ! adds active brush forces
 #endif
 
 !!!DEBUG

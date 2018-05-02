@@ -25,7 +25,7 @@
 
 /* Flat dynamics. Sets every 'y' component to zero.*/
 
-#define BIDIMENSIONAL
+#undef BIDIMENSIONAL
 
 /* Potentials and particles */
 
@@ -58,11 +58,11 @@
 
 /* Active brush polymers*/
 
-#undef ACTIVE_BRUSH
+#define ACTIVE_BRUSH
 
 /* Brushes are coupled by springs */
 
-#undef SPRING_ARRAY
+#define SPRING_ARRAY
 
 #undef RANGLE
 

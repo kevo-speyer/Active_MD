@@ -12,7 +12,7 @@ select case (mode_or)
 
 case(0)  ! Init  variables 
 #ifdef ACTIVE_BRUSH
-    ALLOCATE(k0( (n_mon-1)*n_chain) )
+    ALLOCATE( k0(n_chain) )
     k0 = k_bend 
 #else
     k_or = k_bend!sets orientation stiffnes
@@ -80,7 +80,7 @@ case(1)  ! orientation rigidity calculation
                 delta_alpha=0.0-alpha_eq
         end if
 #ifdef ACTIVE_BRUSH
-        F_mod = k0(1+l*(n_mon-1))*delta_alpha
+        F_mod = k0(l+1)*delta_alpha
 #else
         F_mod = k_or*delta_alpha
 #endif

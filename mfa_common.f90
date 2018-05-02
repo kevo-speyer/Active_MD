@@ -2,7 +2,7 @@ module commons
       implicit none
       save ! is not strictly necesary because commons will be used also in the main program 
 
-#include 'control_simulation.h'
+#include "control_simulation.h"
       
 !---  conventions about variables:
 !---------------------------------

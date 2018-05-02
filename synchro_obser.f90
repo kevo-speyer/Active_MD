@@ -12,7 +12,7 @@ subroutine synchro_obser(mode)
         write(56,'(I12.4)', advance='no') i_time
 #ifdef ACTIVE_BRUSH
         write(56,'(ES12.4)', advance='no') cos_mem(n_chain)
-        write(56,'(ES12.4)', advance='no') k0(1+(n_chain-1)*(n_mon-1))
+        write(56,'(ES12.4)', advance='no') k0(1)
 #else
         r_rel = r0(:, 2+(n_chain-1)*n_mon)- r0(:, 1+(n_chain-1)*n_mon)  
         cos_th = r_rel(1)/SQRT(DOT_PRODUCT(r_rel,r_rel))

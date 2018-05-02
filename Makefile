@@ -17,7 +17,9 @@ flags = -fpp # -vec-report0    # -fpe0: stops prog after first fp exception
 #  sheldon: -axW
 #  core 2 duo -axT
 flags+=  -O3 -ip #-i-static   -align all  -axSSSE3  # -axSSE4.1   # optimization
-#flags+=  -openmp # multi-platform shared-memory parallel programming
+#for old versions of ifort, the flag for openmp is:
+#flags+=  -openmp
+flags+=  -qopenmp # multi-platform shared-memory parallel programming
 #flags+=  -warn unused
 #flags+=  -g -check bounds -traceback
 #flags+=     -pg # profiling
@@ -104,7 +106,7 @@ $(exe):  $(OBJS) Makefile control_simulation.h
 #
 # Dependencies of the object files 
 #
-mfa_common.o: control_simulation.h Makefile
+mfa_common.o: mfa_common.f90 control_simulation.h Makefile
 md_main.o : md_main.f90 mfa_common.o control_simulation.h
 init_params.o : init_params.f90 mfa_common.o control_simulation.h
 init_config.o : init_config.f90 mfa_common.o control_simulation.h 

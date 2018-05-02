@@ -1,5 +1,5 @@
 subroutine spring_array(mode)
-#include "control_simulation.h"
+#include 'control_simulation.h'
 #ifdef SPRING_ARRAY
     ! Routine that introduces an elastic (Hook law) force between neighboring chains
     ! The force is applied to the second bead of the chain
