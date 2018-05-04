@@ -107,8 +107,10 @@ ALLOCATE(f_new(3,n_part))
         !deb               stop
         !deb           end if
 
-
+#if BIN_TYPE == 0 || BIN_TYPE == 1
         call check_skin  !calculates if it is necessary to update the verlet list. If it is,
+#endif
+
 #if BIN_TYPE == 0
 
         if (f_skin.eq.1) call binning
@@ -144,14 +146,14 @@ ALLOCATE(f_new(3,n_part))
 
 
 #if SYMMETRY == 0
-#if WALL != 1 
+#   if WALL != 1 
         call fluid_wall(wall_flag) ! 1= wall atoms, 2= 9-3 potenti , 3 and 4 also valid
-#endif
+#   endif
 
         call wall_wall(wall_flag)  ! 1= wall atoms, 2= 9-3 potential
-#if WALL == 1
+#   if WALL == 1
         call intra_wall
-#endif
+#   endif
 #endif
         call intra_molec
 
@@ -189,9 +191,9 @@ f_new=force!(:,2+(n_chain-1)*n_mon)
 
 #if SYSTEM == 2 || SYSTEM == 3
         call ewald_k(1)  ! coulomb force calculation in K-space for Ewald sum
-#if SYMMETRY == 0
+#   if SYMMETRY == 0
         call dipolar_correction()
-#endif
+#   endif
 #endif
 
 #ifdef POISEUILLE
@@ -207,6 +209,11 @@ f_new=force!(:,2+(n_chain-1)*n_mon)
         !endif
 #ifdef DPD_VV                     
 
+#   if BIN_TYPE == 2
+print "ERROR: DPD_VV not compatible with BIN_TYPE 2 yet!"
+print*, "Exiting program"
+exit
+#   endif
         !Note: this recalculates Fd with the new velocities and updates F for the begining og the next cycle 
         !       with this new value.  
 
@@ -257,9 +264,4 @@ f_new=force!(:,2+(n_chain-1)*n_mon)
 
     203 format(3f13.4)
 end program md_pb
-
-
-!TYPE vector
-!    REAL :: x, y, z
-!END TYPE vector
 

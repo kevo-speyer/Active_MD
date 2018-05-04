@@ -2,9 +2,10 @@
 !  - Does not use newton 3 law. Goes over all the particles 
 !  - taken from Plimpton's implementations [ref: J. Comp. Phys 117, 1, '95]
 
-    subroutine my_binning()
+subroutine my_binning()
 #include 'control_simulation.h'     
-    use commons 
+#if BIN_TYPE == 1
+use commons 
 #ifdef MPI
     use mpi_commons
 #endif
@@ -136,5 +137,5 @@
 !        print *, ff_list(1:3,:) ; stop
     end if
     
-    
-    end subroutine my_binning
+#endif    
+end subroutine my_binning

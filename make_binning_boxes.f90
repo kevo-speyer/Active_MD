@@ -5,6 +5,7 @@
 subroutine make_binning_boxes()
     use commons
 #   include 'control_simulation.h'    
+#if BIN_TYPE == 0 || BIN_TYPE == 1
 implicit none
 logical, parameter :: debug = .true.
 
@@ -89,5 +90,5 @@ print '(a,3f7.3/)',    "   - Binning box dimensions =              ",r_bin_x,r_b
         end do
     end do
 
-
+#endif
 end subroutine make_binning_boxes

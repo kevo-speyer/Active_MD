@@ -160,9 +160,42 @@ use commons
 !        r0(2,i_part) = r0(2,i_part) + dt*v(2,i_part) + 0.5*dt_2*a(2,i_part) 
 !        r0(3,i_part) = r0(3,i_part) + dt*v(3,i_part) + 0.5*dt_2*a(3,i_part) 
 
+#if BIN_TYPE == 2 
+     !Get old cell of the particle 
+     call get_cell(r0(:,i_part), n_dim, n_cells, inv_l_cell, i_cell)
+#endif 
 
         r0(:,i_part) = r0(:,i_part) + dt*v(:,i_part) + 0.5*dt_2*a(:,i_part) 
 
+!CORRECT FOR PBC
+#if SYMMETRY == 0
+                do i_dim = 1,n_dim-1
+# elif SYMMETRY == 1
+                    do i_dim = 1,n_dim
+#endif
+                        if(r0(i_dim,i_part).gt.boundary(i_dim)) then
+                            r0(i_dim,i_part) = r0(i_dim,i_part) - boundary(i_dim)
+#if BIN_TYPE == 0 || BIN_TYPE == 1 
+                            mic_count(i_dim,i_part) = mic_count(i_dim,i_part) + 1
+#endif
+                        else if(r0(i_dim,i_part).lt.(0.)) then
+                            r0(i_dim,i_part) = r0(i_dim,i_part) + boundary(i_dim)
+#if BIN_TYPE == 0 || BIN_TYPE == 1
+                            mic_count(i_dim,i_part) = mic_count(i_dim,i_part) - 1
+#endif
+                        end if
+                    end do
+
+# if BIN_TYPE == 2
+! Check if the particle changes cell and update cell linked list
+if ( a_type(i_part) .eq. 3 ) then ! if solvent, then put particle last in linked list
+    call update_part_cell(r0(:,i_part), i_part, n_dim, n_cells, n_cells_tot,inv_l_cell, i_cell, n_mon_tot, part_in_cell, lpart_in_cell,r_nei, l_nei, 2)
+else ! if particle is not in the solvent, then put particle first
+    call update_part_cell(r0(:,i_part), i_part, n_dim, n_cells, n_cells_tot,inv_l_cell, i_cell, n_mon_tot, part_in_cell, lpart_in_cell ,r_nei, l_nei, 1)
+end if
+#endif 
+
+       
 
 #       if STORE == 1 
 ! ----- Update unfolded coordinates
@@ -220,24 +253,6 @@ use commons
         end do
 #endif
 
-
-
-
-            do i_part = 1,n_mon_tot
-#if SYMMETRY == 0
-                do i_dim = 1,n_dim-1
-# elif SYMMETRY == 1
-                    do i_dim = 1,n_dim
-#endif
-                        if(r0(i_dim,i_part).gt.boundary(i_dim)) then
-                            r0(i_dim,i_part) = r0(i_dim,i_part) - boundary(i_dim)
-                            mic_count(i_dim,i_part) = mic_count(i_dim,i_part) + 1
-                        else if(r0(i_dim,i_part).lt.(0.)) then
-                            r0(i_dim,i_part) = r0(i_dim,i_part) + boundary(i_dim)
-                            mic_count(i_dim,i_part) = mic_count(i_dim,i_part) - 1
-                        end if
-                    end do
-            end do
 #   if WALL == 1 
 !  ----  PBC conditions for wall atoms 
         do i_wall = 1,n_wall

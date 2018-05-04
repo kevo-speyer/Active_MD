@@ -304,12 +304,12 @@ real (kind=8) ,allocatable :: force_or(:,:)
 
       real(kind=8)            :: r0_last_pinned(n_dim),fo_last_pinned(n_dim) ,fo_last_unpinned(n_dim)
       real(kind=8)            :: r0_twall_1(n_dim),f0_spring_1(n_dim)
-
+#if BIN_TYPE == 0 ||BIN_TYPE == 1
       real(kind=8)            :: r_bin_x,r_bin_y,r_bin_z   ! binning box dimensions
       real(kind=8)            :: inv_r_bin_x,inv_r_bin_y,inv_r_bin_z   ! HPC
 
       real(kind=8)            :: skin,skin_2
-
+#endif
       real(kind=8)            :: z_1,z_2
 
       real(kind=8)            :: binbox,binstep,i_histodown(0:110),i_histoup(0:110)
@@ -335,14 +335,16 @@ real (kind=8) ,allocatable :: force_or(:,:)
 ! ------ INTEGERS 
 !
 
-!---  variables to monitor mimimum image convention
-     integer,allocatable ::  mic_count(:,:)
 
 !---  definitions for particles
       integer i_type,j_type 
 !$OMP THREADPRIVATE(i_type,j_type)      
       integer,allocatable  :: a_type(:)
 !--- Binning params
+#if BIN_TYPE == 0 || BIN_TYPE == 1
+
+!---  variables to monitor mimimum image convention
+      integer,allocatable ::  mic_count(:,:)
       integer , allocatable ::  bin_twall(:,:,:,:)
       integer , allocatable ::  bin_bwall(:,:,:,:)
       integer , allocatable ::  bin_fluid(:,:,:,:)       
@@ -353,6 +355,13 @@ real (kind=8) ,allocatable :: force_or(:,:)
 
 
       integer, allocatable  :: mic_old(:,:)
+
+#elif BIN_TYPE == 2
+      integer :: n_cells_tot, i_cell, j_cell, n_nei_cells
+      integer, allocatable :: part_in_cell(:), lpart_in_cell(:), r_nei(:), l_nei(:),n_cells(:), cell_neigh_ls(:,:)
+      real(kind=8), allocatable :: l_cell(:), inv_l_cell(:)
+      real(kind=8), allocatable :: r_cell(:)
+#endif
 
       integer :: i_dummy, j_dummy
 

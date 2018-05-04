@@ -79,8 +79,8 @@ OBJS = mfa_common.o \
       orientation.o \
       metronome.o \
 	  spring_array.o \
-	  synchro_obser.o
-
+	  synchro_obser.o \
+	  cell_list.o
 #obsoleted       fluid_fluid_test.o  
 #obsoleted       corrector.o   
 #obsoleted       predict.o     
@@ -160,6 +160,7 @@ orientation.o: orientation.f90  bending.f90 control_simulation.h mfa_common.o
 metronome.o: metronome.f90 orientation.o control_simulation.h mfa_common.o 
 spring_array.o: control_simulation.h mfa_common.o
 synchro_obser.o: control_simulation.h mfa_common.o
+cell_list.o: cell_list.f90 control_simulation.h mfa_common.o init_config.o
 
 wall_time.o : wall_time.c
 	    gcc -c wall_time.c

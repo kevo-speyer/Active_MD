@@ -233,7 +233,9 @@ subroutine init_system()
                      inv_mass(n_part),               &
                      random(n_part)   )         ! random vector
 ! Variables to monitor minimum image convention 
-        allocate  ( mic_count(n_dim,n_part) )
+#if BIN_TYPE == 0 || BIN_TYPE == 1
+    allocate  ( mic_count(n_dim,n_part) )
+#endif
 ! Variables used for binning:
 
                    n_bin_x= int(0.4*n_cell_w_x)
@@ -243,13 +245,13 @@ subroutine init_system()
 ! NOTE: n_neigh is the maximum number of neighbors of each atom
 ! it is defined to a more or less arbitrary value of 256 or 300
 ! It is also a typical reason for which the program crashes. 
-
+#if BIN_TYPE == 0 || BIN_TYPE == 1
 allocate (  ff_list(0:n_neigh_fl+n_layer*n_wall,n_part) ) ! ,             &
 !              fw_list(0:n_neigh_wa,n_mon_tot),                          &
 !              ww_list(0:n_neigh_ww,n_wall/2)      )
 !print *,size(ff_list,dim=2) ; stop
        allocate( mic_old(n_dim,n_part) )
-
+#endif
 
 
 ! Variables for tensor of gyration

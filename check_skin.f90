@@ -1,7 +1,10 @@
 !
 !-------- Checks if the binning will be done in this step 
 !
-      subroutine check_skin
+subroutine check_skin
+#include 'control_simulation.h'
+#if BIN_TYPE == 0 || BIN_TYPE == 1
+
       use commons ; implicit none
       logical, parameter :: debug=.false.
 
@@ -20,5 +23,6 @@
                   end if
               end do
               if(debug .and. f_skin == 1) print '(a,i6)',"Doing binning in step",i_time  
+#endif
 !
-      end subroutine check_skin
+end subroutine check_skin

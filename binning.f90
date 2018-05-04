@@ -3,7 +3,7 @@
 #include 'control_simulation.h'
       use commons ; implicit none
       logical,parameter :: binning_debug=.true.
-
+#if BIN_TYPE == 0
 !cla: I think that is the linked-list algorithm (Smit & Frenkel, 1996, p. 368 )
 !---  zero the binning entrances
 
@@ -128,4 +128,5 @@
 
 !if(binning_debug) print *,"Maximum neighbors:", maxval(bin_fluid(:,:,:,0))
 !pause
+#endif
 end subroutine binning

@@ -832,7 +832,7 @@ print*,""
 
         end do
     end do
-
+#if  BIN_TYPE == 0 || BIN_TYPE == 1
 ! --- Set skin and variables for verlet lists (?) 
 
       mic_count(:,:) = 0
@@ -845,7 +845,7 @@ print*,""
 
       r_dummy = r_cut_max
       skin_2 = (r_dummy+skin)**2-r_dummy**2
-
+#endif
 
 
 !      

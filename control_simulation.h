@@ -107,4 +107,12 @@
 #define NO_WARNS     /* Does not print the warning messages of the "beads too close"                      */     
 /*#define FLUID_ROUTINE 0*/  /* controls if it uses the normal fluid routine (0) or the experimental HPC-tuned (1) */
 #undef FREE_HEADS        /* if defined, the heads of brushes are not fixed, epsilon between head and surface is 250, potential - attractive*/
-#define BIN_TYPE  0 /*0: uses binning.f90; single counting of each interaction; 1: uses my_binning.f90, from S. Plimpton and Cem Servantie versions; double counts each interaction.  */
+#define BIN_TYPE 2 /*0: uses binning.f90; single counting of each interaction;*/
+                    /*1: uses my_binning.f90, from S. Plimpton and Cem Servantie versions; double counts each interaction.*/
+                    /*2: uses cell_list.f90; does cell-linked lists, No Verlet-List. by Kevo*/
+
+#define L_BOX 1 /*Only relevant if bin_type=2, */
+                /* 1 is length of binning box = r_cut_max. 13 neighbor cells*/
+                /* 2 is length of binning box = r_cut_max / 2 . 62 neighbor cells */
+ 
+#define RESPA /*Implement multiple time scale molecular dynamics (Ref: Tuckerman Berne Martyna, 1992, JCP)*/

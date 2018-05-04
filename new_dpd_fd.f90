@@ -5,6 +5,7 @@ subroutine new_dpd_fd()
 !
 #include 'control_simulation.h'
 use commons
+#if BIN_TYPE == 0 || BIN_TYPE == 1
 !use ziggurat, only: rnor,uni
 !use util ! debug
   implicit none
@@ -210,6 +211,6 @@ end do
        end do
     end if
 
-
+#endif
 end subroutine new_dpd_fd
 

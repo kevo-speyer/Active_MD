@@ -86,7 +86,7 @@ use ziggurat, only: rnor,uni
 !#       endif
 
 
-#   if BIN_TYPE == 0 
+#   if BIN_TYPE == 0 || BIN_TYPE == 2  
       force_tmp(:,q_part) =  force_tmp(:,q_part) + vec_dummy(:)   
       force_tmp(:,j_part) =  force_tmp(:,j_part) - vec_dummy(:)   
 #   elif BIN_TYPE == 1
@@ -110,7 +110,7 @@ use ziggurat, only: rnor,uni
 
 
       force_tmp(:,q_part) =  force_tmp(:,q_part) + vec_dummy(:)   
-#     if BIN_TYPE == 0      
+#     if BIN_TYPE == 0 || BIN_TYPE == 2     
       force_tmp(:,j_part) =  force_tmp(:,j_part) - vec_dummy(:)   
 #     endif      
 
