@@ -188,6 +188,8 @@ use commons
 
 # if BIN_TYPE == 2
 ! Check if the particle changes cell and update cell linked list
+! The cell linked list has an order: first all the brush particles (type 1 and 2), and then all the solvent
+! particles ( a_type = 3 )
 if ( a_type(i_part) .eq. 3 ) then ! if solvent, then put particle last in linked list
     call update_part_cell(r0(:,i_part), i_part, n_dim, n_cells, n_cells_tot,inv_l_cell, i_cell, n_mon_tot, part_in_cell, lpart_in_cell,r_nei, l_nei, 2)
 else ! if particle is not in the solvent, then put particle first
