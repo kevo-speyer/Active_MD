@@ -593,6 +593,16 @@ real (kind=8) :: press_tensor(3,3),press_tensor_mean(3,3)
 
 #endif
 
+
+! Multiple Time Scales Molecular Dynamics Variables (reversible RESPA implementation)
+#ifdef RESPA
+
+    real(kind=8) :: dt_long, dt, sig_long
+    integer :: n_time_short, i_time_short
+    real (kind=8), allocatable :: force_long(:,:)
+
+#endif
+
 !!OMP VARIABLES 
 #ifdef _OPENMP
 integer, dimension(:), allocatable :: par_jsrseed

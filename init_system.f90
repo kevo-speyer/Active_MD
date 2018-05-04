@@ -198,7 +198,13 @@ subroutine init_system()
        allocate (   r0(n_dim,n_part),    &
                 r0_old(n_dim,n_part),    &   
                 spabs(n_dim,n_part),     &       
-                force(n_dim,n_part)  ) 
+                force(n_dim,n_part)  )
+#ifdef RESPA
+    !Could be optimized for memory consumption
+    ! allocate(force_long(n_dim,n_part-n_mon*n_chain))
+    !but code would be less readable
+    allocate(force_long(n_dim,part_init_d+1:n_part))
+#endif
 ! Velocities and accelerations: 
 
         allocate ( v(3,n_part),a(3,n_part),v_half(3,n_part) ) 

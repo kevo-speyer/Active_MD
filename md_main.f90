@@ -8,8 +8,8 @@ program md_pb
     real (kind=8) :: t0,t1
     logical,parameter :: debug =.false.
     !!!DEBUG
-    real*8, ALLOCATABLE :: f_old(:,:), f_new(:,:)
-    integer :: i,j
+!    real*8, ALLOCATABLE :: f_old(:,:), f_new(:,:)
+!    integer :: i,j
     !!
     ! [12/2015] Paralelization with OpenMP
     ! [11/2013]: Droplet compatibility fixed
@@ -60,12 +60,12 @@ program md_pb
     call init_config()   ! initial conf or read an old one
     call init_obser()    ! Measurable variables init.
 
-!!! DEBUG
-
-ALLOCATE(f_old(3,n_part))
-ALLOCATE(f_new(3,n_part))
-
-!!! DEBUG
+!!!! DEBUG
+!
+!ALLOCATE(f_old(3,n_part))
+!ALLOCATE(f_new(3,n_part))
+!
+!!!! DEBUG
 
 #ifdef BENDING     
     call bending(0) ! writes brush bending constants  to log
@@ -96,11 +96,17 @@ ALLOCATE(f_new(3,n_part))
 
         r_time = dble(s_time+i_time-1)*dt
 
+#ifdef RESPA
+        call verlet_velocities_long(1)
+
+        do i_time_short = 1, n_time_short ! inner (short) time loop for Multi-time-scale dynamics
+       
+#endif
 
         ! ----  Propagate coordinates 
 
 
-        call verlet_positions()
+        call verlet_positions() ! MAKE THIS RESPA COMPATIBLE!
 
         !deb           if (i_time == 1 ) then
         !deb               call write_conf(1,r0,10)
@@ -122,7 +128,7 @@ ALLOCATE(f_new(3,n_part))
 
         ! ----- Forces to zero
 
-        force(:,:) = 0.0  
+        force(:,:) = 0.0 
 
         ! Note: After r_2_min_time, the force is completely switched on 
         ! This r_2_min is used for calculating the v_fluid_fluid and v_fluid_wall
@@ -139,57 +145,73 @@ ALLOCATE(f_new(3,n_part))
         press_tensor(:,:) = 0.
 #endif
 
-
+#ifdef RESPA
+        !calc_short_force() calculates LJ between monomers-solvent & monomer-monomer and DPD or langevin
+        call calc_short_force()
+#else
         ! NOTE: fluid-fluid calculates LJ always, DPD and LGV forces and calls ewald in
         ! real space
         call fluid_fluid() ! Calculates various forces, including thermostat and LJ
-
+#endif
 
 #if SYMMETRY == 0
-#   if WALL != 1 
-        call fluid_wall(wall_flag) ! 1= wall atoms, 2= 9-3 potenti , 3 and 4 also valid
+#   if WALL != 1
+       call fluid_wall(wall_flag) ! 1= wall atoms, 2= 9-3 potenti , 3 and 4 also valid
 #   endif
 
         call wall_wall(wall_flag)  ! 1= wall atoms, 2= 9-3 potential
 #   if WALL == 1
+#       ifdef RESPA
+        print*,"ERROR: WALL = 1 not compatible with define RESPA."
+        print*,"routine intra_wall should be compatibilized"
+        stop
         call intra_wall
 #   endif
 #endif
-        call intra_molec
+       call intra_molec
 
 
 #ifdef ACTIVE_BRUSH
-        call metronome(5) ! adds active brush forces
+call metronome(5) ! modify k_or, if Rend is in activation zone
 #endif
 
 !!!DEBUG
-f_old=force!(:,2+(n_chain-1)*n_mon)
+!f_old=force!(:,2+(n_chain-1)*n_mon)
 !!!
 
 #ifdef SPRING_ARRAY
-        call spring_array(1) ! adds active brush forces
+       call spring_array(1) ! adds active brush forces
 #endif
 
 !!!DEBUG
-f_new=force!(:,2+(n_chain-1)*n_mon)
+!f_new=force!(:,2+(n_chain-1)*n_mon)
 !!!
 
-#ifdef BENDING        
-        call bending(1)  ! adds brush bending forces and bending energy
+#ifdef BENDING       
+       call bending(1)  ! adds brush bending forces and bending energy
 #endif
 
 
-#ifdef BENDING_MELT        
+#ifdef BENDING_MELT       
+#   ifdef RESPA
+    print*,"ERROR: BENDING_MELT NOT COMPATIBLE WITH DEFINED RESPA"
+    stop
+#   endif
         call bending_melt(1) ! adds melt bending forces and bending energy
 #endif
 
 
-#ifdef ORIENTATION        
-        call orientation(1) ! adds brush orientation bending forces and bending energy
+#ifdef ORIENTATION      
+       call orientation(1) ! adds brush orientation bending forces and bending energy
 #endif
 
 
 #if SYSTEM == 2 || SYSTEM == 3
+#   ifdef RESPA
+    print*,"ERROR: CHARGED SYSTEM NOT COMPATIBLE WITH DEFINED RESPA"
+    stop
+#   endif
+
         call ewald_k(1)  ! coulomb force calculation in K-space for Ewald sum
 #   if SYMMETRY == 0
         call dipolar_correction()
@@ -197,16 +219,22 @@ f_new=force!(:,2+(n_chain-1)*n_mon)
 #endif
 
 #ifdef POISEUILLE
-        call constant_force() ! Poseuille flow generation
+       call constant_force() ! Poseuille flow generation
 #endif
 
 
         ! -----  Update  velocities
-
+        !MAKE THIS ROUTINE RESPA COMPATIBLE!
         call verlet_velocities()
-        !if(mod(i_time,100).eq.0) then
-        !print *, a
-        !endif
+
+#ifdef RESPA
+        end do ! short time loop
+        force_long(:,:) = 0.0 ! set solvent (long) forces to 0
+        call calc_solv_solv_force() ! 
+        call verlet_velocities_long(2)
+#endif        
+
+
 #ifdef DPD_VV                     
 
 #   if BIN_TYPE == 2

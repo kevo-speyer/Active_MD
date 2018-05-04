@@ -136,7 +136,7 @@ integer :: i_dm, j_dm
             print*, "ERROR in conf_old. Particle outside boundaries"
             print*, "r0(:,i_part) = ",r0_part(:)
             print*, "boundaies = ", boundary(:) 
-            exit
+            stop
         end if
     end do
 !end do
@@ -434,7 +434,7 @@ case(3)
    
     case default
     print*,"Error in routine make_cell_list2, in cell_list"
-    call exit
+    stop
     end select
 
 case(4)
@@ -456,7 +456,7 @@ case(4)
 case default
     print*, "ERROR in routine make_cell_list. "
     print*, "This routine works fine for 3 dimensions or less "
-    call exit()
+    stop
 
 end select 
 
@@ -576,7 +576,7 @@ case(4)
 case default
     print*, "ERROR in routine make_cell_list. "
     print*, "This routine works fine for 3 dimensions or less "
-    call exit()
+    stop 
 
 end select 
 

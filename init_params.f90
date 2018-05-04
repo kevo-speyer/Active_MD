@@ -144,7 +144,10 @@ else      ! ---- READ mfa_input
     read(10,*) n_relax         ;print '(/a30,i6)',  "n_relax ",n_relax     
     read(10,*) n_obser         ;print '(a30,i6)',   "n_obser ",n_obser        
     read(10,*) n_safe          ;print '(a30,i6)',   "n_safe  ",n_safe             
-    read(10,*) dt              ;print '(a30,g12.5)',"dt      ",dt                
+    read(10,*) dt              ;print '(a30,g12.5)',"dt      ",dt  
+#ifdef RESPA
+    read(10,*) n_time_short    ;print '(a30,i6)',   "n_obser ", n_time_short    
+#endif
     read(10,*) !c_dummy        
     read(10,*) !r_dummy       
     read(10,*) temp          ;  print '(a30,g16.5)',"Temperature  ",temp                  
@@ -897,7 +900,10 @@ write(*,*) "  *  Parallel OpenMP version. N_threads: ", numth
 ! is assummed to be the same for all the particles
 
       sig = sqrt( 2.*temp*friction(1)/dt ) 
-
+#ifdef RESPA
+      dt_long = dt * float(n_time_short)
+      sig_long = sqrt(2.*temp*friction(1)/dt_long)
+#endif
 ! NOTE: 1/sqrt(dt): is related to the random force in the algorhytm implemmentation 
 
 ! DPD constant weight functions. Here to speed up dpd_forces_ll

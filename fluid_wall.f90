@@ -1,5 +1,5 @@
 
-      subroutine fluid_wall(inter_type)
+subroutine fluid_wall(inter_type)
         
 ! Computes fluid-wall interactions:
 !
@@ -201,4 +201,4 @@
 
 
 
-         end subroutine fluid_wall
+end subroutine fluid_wall

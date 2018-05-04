@@ -1,35 +1,27 @@
-subroutine verlet_velocities()
+subroutine verlet_velocities_long(meas_ener)
 ! * Updates velocities, forces and accels using Velocity verlet  
 ! * Updates wall positions
 ! in the DPD scheme
 use commons
 #include "control_simulation.h" 
   implicit none
+  integer, intent(in) :: meas_ener
   real (kind=8) ::  T_inst, T_dummy
   real (kind=8) ::  T_inst_mean = 0.
   integer :: i_head
   logical, parameter :: debug = .false.
 
 
-#if SYMMETRY == 0
-#       if SYSTEM == 0 || SYSTEM == 1 || SYSTEM == 3 /* all the systems with fixed brush heads */
-#        ifndef FREE_HEADS
-!   ---  Zero all for the heads
-                f_on_heads(:,:) =  force(:,1:part_init_d:n_mon)
-#         endif
-#       endif
-#endif
+  ! Update accelerations with the new force values 
 
-! Update accelerations with the new force values 
-
-        do i_part = 1,n_mon_tot
-            a(1,i_part) = force(1,i_part)*inv_mass(i_part)
+        do i_part = part_init_d+1,n_mon_tot ! just loop over solvent
+            a(1,i_part) = force_long(1,i_part)*inv_mass(i_part)
 #ifdef BIDIMENSIONAL
             a(2,i_part) = 0.0d0 
 #else 
-            a(2,i_part) = force(2,i_part)*inv_mass(i_part)
+            a(2,i_part) = force_long(2,i_part)*inv_mass(i_part)
 #endif
-            a(3,i_part) = force(3,i_part)*inv_mass(i_part)
+            a(3,i_part) = force_long(3,i_part)*inv_mass(i_part)
 !        end do
 
 ! Update velocities 
@@ -79,59 +71,23 @@ use commons
 
 ! RELAX Constraint the maximum force to 10.
 
-            do i_part = 1,n_mon_tot
+            do i_part = part_init_d+1,n_mon_tot
 
-                if ( force(1,i_part) > 10. )   force(1,i_part) = 10.
-                if ( force(2,i_part) > 10. )   force(2,i_part) = 10.
-                if ( force(3,i_part) > 10. )   force(3,i_part) = 10.
+                if ( force_long(1,i_part) > 10. )   force_long(1,i_part) = 10.
+                if ( force_long(2,i_part) > 10. )   force_long(2,i_part) = 10.
+                if ( force_long(3,i_part) > 10. )   force_long(3,i_part) = 10.
 
-                if ( force(1,i_part) < -10. )  force(1,i_part) = -10.
-                if ( force(2,i_part) < -10. )  force(2,i_part) = -10.
-                if ( force(3,i_part) < -10. )  force(3,i_part) = -10.
+                if ( force_long(1,i_part) < -10. )  force_long(1,i_part) = -10.
+                if ( force_long(2,i_part) < -10. )  force_long(2,i_part) = -10.
+                if ( force_long(3,i_part) < -10. )  force_long(3,i_part) = -10.
 
             end do
 #endif /* ifdef RELAX */
 
-
-
-!!KEVIN 10/2013 Droplet compatibility added (WALL ==3 and SYSTEM == 1) 
-!!Droplet not compatible with moving wall
-
-#if SYMMETRY == 0 /* channel geometry */
-#   ifndef POISEUILLE /* if not defined poiseuille */
-#      if WALL  == 1 || WALL == 2 || WALL == 3 /* if using or explicit implicit wall with fixed brush heads */
-#           if SYSTEM == 0 || SYSTEM == 3 || SYSTEM == 1
-!
-!       ----- Wall velocities,accels and forces for brush's head 
-!
-        do i_chain = 1 ,n_chain/2
-                i_head = 1+n_mon*(i_chain-1)
-                v(1:2,i_head) = va_spring_twall(1:2)
-                v(3,i_head) = 0.
-                force(:,i_head) = 0.! zero force
-                a(:,i_head) = 0. ! zero accels
-        end do
-        do i_chain = n_chain/2+1 ,n_chain
-                i_head = 1+n_mon*(i_chain-1)
-                v(1:2,i_head) = -va_spring_twall(1:2)
-                v(3,i_head) = 0.
-                force(:,i_head) = 0.! zero force
-                a(:,i_head) = 0. ! zero accels
-        end do
-#           endif
-#       endif
-#   else /* if Poiseuille is defined */
-!      Fix the head beads at the original position 
-        do i_chain = 1 ,n_chain
-                i_head = 1+n_mon*(i_chain-1)
-                v(:,i_head) = 0. ! 0 the velocity of the heads
-                force(:,i_head) = 0.! zero force
-                a(:,i_head) = 0. ! zero accels
-        end do
-#   endif /* indef poiseuille*/
-# endif /* symmetry */
-
-#ifndef RESPA
+select case(meas_ener)
+case(1)
+    ! do nuffin
+case(2)
 !
 !   ---- Measurement of some quantities 
 !
@@ -238,5 +194,6 @@ print*,"accel^2= ",i_time,sum(a(:,1:n_mon_tot)**2, dim=1)/real(n_mon_tot)
         write(77,'(i7,3f17.5)') i_time,v_total*inv_N, e_total*inv_N,t_total*inv_N
 end if
 
-#endif /* ifndef RESPA*/
+
+end select
 end subroutine verlet_velocities
