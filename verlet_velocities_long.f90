@@ -121,6 +121,10 @@ case(2)
       t_fluid = 0.5*t_fluid ! *inv_dt_2
 !
       v_total = v_wall_wall + v_fluid_wall + v_fluid_fluid + v_intra_molec
+#ifdef RESPA
+    v_total = v_total + v_sol_sol ! Add interaction energy between solvent_solvent 
+        !calculated in routine calc_solv_solv_force
+#endif      
 
 #ifdef BENDING
         v_total = v_total + v_bend !Add bending energy  

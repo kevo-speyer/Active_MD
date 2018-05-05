@@ -903,6 +903,8 @@ write(*,*) "  *  Parallel OpenMP version. N_threads: ", numth
 #ifdef RESPA
       dt_long = dt * float(n_time_short)
       sig_long = sqrt(2.*temp*friction(1)/dt_long)
+      r_cut_ss = sqrt( range_2(3,3) )
+      inv_r_cut_ss = 1. / r_cut_ss
 #endif
 ! NOTE: 1/sqrt(dt): is related to the random force in the algorhytm implemmentation 
 

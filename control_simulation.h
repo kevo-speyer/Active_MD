@@ -116,3 +116,7 @@
                 /* 2 is length of binning box = r_cut_max / 2 . 62 neighbor cells */
  
 #define RESPA /*Implement multiple time scale molecular dynamics (Ref: Tuckerman Berne Martyna, 1992, JCP)*/
+
+#define SOL_SOL_INT 2 /* Control the interactions between solvent-solvent (a_type=3) */
+                      /* 1 is Lennard-Jones Potential*/
+                      /* 2 is Soft Potentail (typically used in DPD)*/

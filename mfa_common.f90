@@ -597,10 +597,15 @@ real (kind=8) :: press_tensor(3,3),press_tensor_mean(3,3)
 ! Multiple Time Scales Molecular Dynamics Variables (reversible RESPA implementation)
 #ifdef RESPA
 
-    real(kind=8) :: dt_long, dt, sig_long
+    real(kind=8) :: dt_long, dt, sig_long, v_sol_sol! 
+    !v_sol_sol = interaction energy between solvent particles (a_type=3)
     integer :: n_time_short, i_time_short
     real (kind=8), allocatable :: force_long(:,:)
 
+#endif
+
+#if SOL_SOL_INT == 2
+    real(kind=8) :: r_cut_ss, inv_r_cut_ss
 #endif
 
 !!OMP VARIABLES 

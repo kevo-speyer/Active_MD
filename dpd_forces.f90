@@ -1,4 +1,4 @@
-subroutine dpd_forces(inv_sqrt_r_2,force_tmp)
+subroutine dpd_forces(inv_sqrt_r_2,force_tmp, sig_in)
     use commons
 #ifdef _OPENMP
       use omp_lib
@@ -10,7 +10,7 @@ use ziggurat, only: rnor,uni
 #include "control_simulation.h" 
 
     implicit none
-    real(kind=8) , intent(in) :: inv_sqrt_r_2
+    real(kind=8) , intent(in) :: inv_sqrt_r_2, sig_in
     real(kind=8) :: g_rand,r_versor(3),delta_v(3),rrc
     real(kind=8) , intent(inout) :: force_tmp(3,n_part)
 
@@ -75,7 +75,7 @@ use ziggurat, only: rnor,uni
 ! ----  Random force computation:      
 
           r_versor(:) = delta_r(:)*inv_sqrt_r_2
-         vec_dummy(:) = sig*w_r*g_rand*r_versor(:) 
+         vec_dummy(:) = sig_in*w_r*g_rand*r_versor(:) 
 !        print*,"q,j:",q_part,j_part,sig
 
 !print*,"r_v",r_versor
