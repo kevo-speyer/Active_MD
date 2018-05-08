@@ -19,7 +19,7 @@ flags = -fpp # -vec-report0    # -fpe0: stops prog after first fp exception
 flags+=  -O3 -ip #-i-static   -align all  -axSSSE3  # -axSSE4.1   # optimization
 #for old versions of ifort, the flag for openmp is:
 #flags+=  -openmp
-flags+=  -qopenmp # multi-platform shared-memory parallel programming
+#flags+=  -qopenmp # multi-platform shared-memory parallel programming
 #flags+=  -warn unused
 #flags+=  -g -check bounds -traceback
 #flags+=     -pg # profiling
@@ -80,6 +80,9 @@ OBJS = mfa_common.o \
       metronome.o \
 	  spring_array.o \
 	  synchro_obser.o \
+	  calc_solv_solv_force.o \
+	  calc_short_force.o \
+	  verlet_velocities_long.o \
 	  cell_list.o
 #obsoleted       fluid_fluid_test.o  
 #obsoleted       corrector.o   
@@ -160,8 +163,10 @@ orientation.o: orientation.f90  bending.f90 control_simulation.h mfa_common.o
 metronome.o: metronome.f90 orientation.o control_simulation.h mfa_common.o 
 spring_array.o: control_simulation.h mfa_common.o
 synchro_obser.o: control_simulation.h mfa_common.o
-cell_list.o: cell_list.f90 control_simulation.h mfa_common.o init_config.o
-
+cell_list.o: cell_list.f90 mfa_common.o control_simulation.h mfa_common.o init_config.o
+calc_solv_solv_force.o: control_simulation.h mfa_common.o calc_solv_solv_force.f90
+calc_short_force.o: control_simulation.h calc_short_force.f90 mfa_common.o
+verlet_velocities_long.o: control_simulation.h verlet_velocities_long.f90 mfa_common.o
 wall_time.o : wall_time.c
 	    gcc -c wall_time.c
 

@@ -357,10 +357,9 @@ real (kind=8) ,allocatable :: force_or(:,:)
       integer, allocatable  :: mic_old(:,:)
 
 #elif BIN_TYPE == 2
-      integer :: n_cells_tot, i_cell, j_cell, n_nei_cells
-      integer, allocatable :: part_in_cell(:), lpart_in_cell(:), r_nei(:), l_nei(:),n_cells(:), cell_neigh_ls(:,:)
+      integer :: n_cells_tot, i_cell, j_cell, n_nei_cells, n_nei_cells_tot
+      integer, allocatable :: part_in_cell(:), lpart_in_cell(:), cell_of_part(:), r_nei(:), l_nei(:),n_cells(:), cell_neigh_ls(:,:),  cell_neigh_ls_tot(:,:)
       real(kind=8), allocatable :: l_cell(:), inv_l_cell(:)
-      real(kind=8), allocatable :: r_cell(:)
 #endif
 
       integer :: i_dummy, j_dummy
@@ -597,15 +596,15 @@ real (kind=8) :: press_tensor(3,3),press_tensor_mean(3,3)
 ! Multiple Time Scales Molecular Dynamics Variables (reversible RESPA implementation)
 #ifdef RESPA
 
-    real(kind=8) :: dt_long, dt, sig_long, v_sol_sol! 
+    real(kind=8) :: dt_long, sig_long, v_sol_sol, v_brush_sol, v_brush_brush! 
     !v_sol_sol = interaction energy between solvent particles (a_type=3)
     integer :: n_time_short, i_time_short
     real (kind=8), allocatable :: force_long(:,:)
-
+     real(kind=8) :: r_cut_ss, inv_r_cut_ss
+    
 #endif
 
 #if SOL_SOL_INT == 2
-    real(kind=8) :: r_cut_ss, inv_r_cut_ss
 #endif
 
 !!OMP VARIABLES 

@@ -1,4 +1,4 @@
-      subroutine calc_solv_solv_force()
+subroutine calc_solv_solv_force()
 #include 'control_simulation.h'
       use commons
 #ifdef _OPENMP
@@ -57,19 +57,19 @@
 
 !Warning: Paralelization not adapted for SYMMETRY=1 
 # if BIN_TYPE == 0 || BIN_TYPE == 1
-!$OMP PARALLEL DEFAULT(PRIVATE) SHARED(r_2_min,force,v_sol_sol,n_part,a_type,ff_list, range_2, r0,inv_boundary, boundary, sigma_2,e_shift,sig_long,mass,friction,v, inv_range_2, r_cut_ss, inv_r_cut_ss, r_cut_dpd_2)
+!$OMP PARALLEL DEFAULT(PRIVATE) SHARED(r_2_min,force_long,v_sol_sol,n_part,a_type,ff_list, range_2, r0,inv_boundary, boundary, sigma_2,e_shift,sig_long,mass,friction,v, inv_range_2, r_cut_ss, inv_r_cut_ss, r_cut_dpd_2)
 #ifdef _OPENMP
     ith=omp_get_thread_num()
 #endif
 
 
-!$OMP DO SCHEDULE(STATIC,10) REDUCTION(+:force,v_sol_sol)     
+!$OMP DO SCHEDULE(STATIC,10) REDUCTION(+:force_long,v_sol_sol)     
     do i_part = 1,n_part  !n_mon_tot= brushes + droplet/melt
           i_dummy = ff_list(0,i_part)
           i_type = a_type(i_part)
 # elif BIN_TYPE == 2  /* cell_list.f90 */
 !$OMP PARALLEL DEFAULT(PRIVATE)
-!SHARED(r_2_min,force,v_sol_sol,n_part,a_type,l_cell,n_cells_tot,n_nei_cells,part_in_cell,lpart_in_cell,n_cells,r_nei,l_nei,cell_neigh_ls,range_2, r0,inv_boundary, boundary, sigma_2, e_shift,sig_long,mass,friction,v, inv_range_2, r_cut_ss, inv_r_cut_ss, r_cut_dpd_2)
+!SHARED(r_2_min,force_long,v_sol_sol,n_part,a_type,l_cell,n_cells_tot,n_nei_cells,part_in_cell,lpart_in_cell,n_cells,r_nei,l_nei,cell_neigh_ls,range_2, r0,inv_boundary, boundary, sigma_2, e_shift,sig_long,mass,friction,v, inv_range_2, r_cut_ss, inv_r_cut_ss, r_cut_dpd_2)
 #ifdef _OPENMP
     ith=omp_get_thread_num()
 #endif
@@ -164,9 +164,9 @@
                   f_ipart(3) = f_ipart(3) -  force_loc(3)
 #       endif
 
-                  force(1,j_part) = force(1,j_part) + force_loc(1)
-                  force(2,j_part) = force(2,j_part) + force_loc(2)
-                  force(3,j_part) = force(3,j_part) + force_loc(3)
+                  force_long(1,j_part) = force_long(1,j_part) + force_loc(1)
+                  force_long(2,j_part) = force_long(2,j_part) + force_loc(2)
+                  force_long(3,j_part) = force_long(3,j_part) + force_loc(3)
 
 #   if SYMMETRY == 1 /* bulk */                  
 ! Does not work with OMP
@@ -195,7 +195,7 @@
 #                  endif 
 #         endif /* SYMMETRY */
 
-                  call dpd_forces(inv_sqrt_r_2,force, sig_long)
+                  call dpd_forces(inv_sqrt_r_2,force_long, sig_long)
 
 #       endif /* not DPD_CUT_OFF */
 #endif /*THERMOSTAT = 0 */
@@ -234,7 +234,7 @@
               if(r_2 < r_cut_dpd_2 ) then 
                   
                   
-                  call dpd_forces(inv_sqrt_r_2,force, sig_long)
+                  call dpd_forces(inv_sqrt_r_2,force_long, sig_long)
 
               end if
 
@@ -310,9 +310,9 @@
                   f_ipart(2) = f_ipart(2) -  force_loc(2)
                   f_ipart(3) = f_ipart(3) -  force_loc(3)
 
-                  force(1,j_part) = force(1,j_part) + force_loc(1)
-                  force(2,j_part) = force(2,j_part) + force_loc(2)
-                  force(3,j_part) = force(3,j_part) + force_loc(3)
+                  force_long(1,j_part) = force_long(1,j_part) + force_loc(1)
+                  force_long(2,j_part) = force_long(2,j_part) + force_loc(2)
+                  force_long(3,j_part) = force_long(3,j_part) + force_loc(3)
 
 #   if SYMMETRY == 1 /* bulk */                  
 ! Does not work with OMP
@@ -341,7 +341,7 @@
 #                 endif 
 #         endif /* SYMMETRY */
 
-                  call dpd_forces(inv_sqrt_r_2,force, sig_long)
+                  call dpd_forces(inv_sqrt_r_2,force_long, sig_long)
 
 #       endif /* not DPD_CUT_OFF */
 #endif /*THERMOSTAT = 0 */
@@ -380,7 +380,7 @@
               if(r_2 < r_cut_dpd_2 ) then 
                   
                   
-                  call dpd_forces(inv_sqrt_r_2,force, sig_long)
+                  call dpd_forces(inv_sqrt_r_2,force_long, sig_long)
 
               end if
 
@@ -398,15 +398,15 @@
 
 #       if BIN_TYPE == 0 || BIN_TYPE == 2/* binning.f90 */
  
-          force(1,i_part) = force(1,i_part)  + f_ipart(1)
-          force(2,i_part) = force(2,i_part)  + f_ipart(2)
-          force(3,i_part) = force(3,i_part)  + f_ipart(3)
+          force_long(1,i_part) = force_long(1,i_part)  + f_ipart(1)
+          force_long(2,i_part) = force_long(2,i_part)  + f_ipart(2)
+          force_long(3,i_part) = force_long(3,i_part)  + f_ipart(3)
 
 #       endif
 
 #   if THERMOSTAT == 1 /* Langevin */
 ! COMMENT to check NVE ensemble          
- call lgv_forces(force)
+ call lgv_forces(force_long)
 #   endif /* Langevin */
 
 #if BIN_TYPE == 0 || BIN_TYPE == 1
@@ -439,7 +439,7 @@ end do ! loop over particles
     endif
     if (mod(i_time, 100).eq.0) then
     write(555,'(1i,18f15.4)') i_time,  r0(part_init_d+1:n_mon_tot, :), & 
-                              v(:,part_init_d+1:n_mon_tot), force(part_init_d+1:n_mon_tot, :)
+                              v(:,part_init_d+1:n_mon_tot), force_long(part_init_d+1:n_mon_tot, :)
     end if
 #endif
 #                 if BIN_TYPE == 1                  
@@ -461,4 +461,4 @@ print *, "[fluid_fluid]V=",v_sol_sol
 !end do
 end if
           !
-end subroutine fluid_fluid
+end subroutine calc_solv_solv_force

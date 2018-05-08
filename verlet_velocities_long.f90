@@ -120,9 +120,11 @@ case(2)
 
       t_fluid = 0.5*t_fluid ! *inv_dt_2
 !
-      v_total = v_wall_wall + v_fluid_wall + v_fluid_fluid + v_intra_molec
+#ifndef RESPA
+    v_total = v_wall_wall + v_fluid_wall + v_fluid_fluid + v_intra_molec
+#endif
 #ifdef RESPA
-    v_total = v_total + v_sol_sol ! Add interaction energy between solvent_solvent 
+    v_total = v_wall_wall + v_fluid_wall + v_brush_brush + v_brush_sol + v_intra_molec ! Add interaction energy between solvent_solvent 
         !calculated in routine calc_solv_solv_force
 #endif      
 
@@ -200,4 +202,4 @@ end if
 
 
 end select
-end subroutine verlet_velocities
+end subroutine verlet_velocities_long

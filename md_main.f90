@@ -165,6 +165,7 @@ program md_pb
         print*,"ERROR: WALL = 1 not compatible with define RESPA."
         print*,"routine intra_wall should be compatibilized"
         stop
+#       endif        
         call intra_wall
 #   endif
 #endif

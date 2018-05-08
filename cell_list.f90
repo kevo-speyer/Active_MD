@@ -57,7 +57,7 @@
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 
 
-subroutine neigh_list(r0, a_type, n_part, n_dim, n_cells, n_cells_tot, boundary, inv_l_cell, part_in_cell, lpart_in_cell, r_nei, l_nei)
+subroutine neigh_list(r0, a_type, n_part, n_dim, n_cells, n_cells_tot, boundary, inv_l_cell, part_in_cell, lpart_in_cell, r_nei, l_nei, cell_of_part)
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 ! Routine to make cell lists in a linked way                        !
 ! part_in_cell(i_cell) gives the index of the first                 !
@@ -73,7 +73,7 @@ subroutine neigh_list(r0, a_type, n_part, n_dim, n_cells, n_cells_tot, boundary,
 implicit none
 real(kind=8), intent(in) :: inv_l_cell(n_dim), r0(n_dim,n_part), boundary(n_dim)
 integer, intent(in) :: n_part, n_dim,n_cells(n_dim), n_cells_tot, a_type(n_part)
-integer, intent(out) :: part_in_cell(0:n_cells_tot), lpart_in_cell(0:n_cells_tot), r_nei(n_part), l_nei(n_part)
+integer, intent(out) :: part_in_cell(0:n_cells_tot), lpart_in_cell(0:n_cells_tot), r_nei(n_part), l_nei(n_part), cell_of_part(n_part)
 integer :: i_part, j_part, p_cell, i_dim
 
 !!!!!!!!! DO LINKED LIST FROM SCRATCH !!!!!!!!!!!!!!!!
@@ -90,6 +90,7 @@ do i_part = 1, n_part
     !First get the cell index of the particle. Cell index is between 1 and
     !n_cells_tot
     call get_cell(r0(:,i_part), n_dim, n_cells, inv_l_cell, p_cell)
+    cell_of_part(i_part) = p_cell
     !if(p_cell.gt.n_cells_tot) print*, "ERROR cell out of bounds",r0(:,i_part),p_cell 
     ! If Cell is empty, link cell with particle i_part
     if( part_in_cell(p_cell) .eq. 0 ) then
@@ -229,7 +230,7 @@ p_cell = 1
 
 end subroutine
 
-subroutine update_part_cell(r0_part, i_part, n_dim, n_cells, n_cells_tot, inv_l_cell, old_cell, n_part, part_in_cell, lpart_in_cell, r_nei, l_nei, h_or_t)
+subroutine update_part_cell(r0_part, i_part, n_dim, n_cells, n_cells_tot, inv_l_cell, n_part, part_in_cell, lpart_in_cell, r_nei, l_nei, h_or_t, cell_of_part)
 !This routine updates the linked lists of the cells, if a particle leaves a cell
 
 !! IN VARIABLES
@@ -241,24 +242,28 @@ subroutine update_part_cell(r0_part, i_part, n_dim, n_cells, n_cells_tot, inv_l_
 ! l_cell  is the length of the cell box
 ! old_cell is the cell where the particle (i_part) was before updating positions
 ! h_or_t defines if the particle is added as the first particle or last particle of the linked list of that cell
+! cell_of_part is an array which gives the cell in which each particle is located
 
 !! IN OUT VARIABLES
 ! part_in_cell is an array that stores the index of the first particle for each cell or 0 if the cell is empty
 ! lpart_in_cell is an array that stores the index of the last particle for each cell or 0 if the cell is empty
 ! r_nei is the right cell neighbour of each particle
 ! l_nei is the left cell neighbour of each particle
+! cell_of_part is the array that give the corresponding cell for each particle
 
 implicit none
 real(kind=8), intent(in) :: r0_part(n_dim), inv_l_cell(n_dim)
-integer, intent(in) :: n_dim, old_cell, n_cells(n_dim), i_part, n_cells_tot, n_part, h_or_t
-integer, intent(inout) :: part_in_cell(0:n_cells_tot), lpart_in_cell(0:n_cells_tot), r_nei(n_part), l_nei(n_part)
-integer ::  new_cell, j_part
+integer, intent(in) :: n_dim, n_cells(n_dim), i_part, n_cells_tot, n_part, h_or_t
+integer, intent(inout) :: part_in_cell(0:n_cells_tot), lpart_in_cell(0:n_cells_tot), r_nei(n_part), l_nei(n_part), cell_of_part(n_part)
+integer ::  new_cell, j_part, old_cell
+
+old_cell = cell_of_part(i_part)
 
 !get new cell
 call get_cell(r0_part, n_dim, n_cells, inv_l_cell, new_cell)
 
 if( new_cell .ne. old_cell ) then !Update cell list
-
+    cell_of_part(i_part) = new_cell
     !Remove particle from old cell.
     if( lpart_in_cell(old_cell) .eq. i_part ) then ! if it's the las particle in the cell, relink lpart_in_cell to
         lpart_in_cell(old_cell) = l_nei( i_part )   ! an the left particle of i_part
@@ -297,12 +302,12 @@ end if
 
 end subroutine
 
-subroutine get_cell_neigh_list(n_cells_tot, n_cells, n_dim, n_nei, cell_neigh_ls)
+subroutine get_cell_neigh_list(n_cells_tot, n_cells, n_dim, n_nei,n_nei_tot, cell_neigh_ls, cell_neigh_ls_tot)
 !Generate a list of neighboring cells for each cell
 implicit none
 integer, intent(in) :: n_dim, n_cells_tot, n_cells(n_dim), n_nei
-integer, intent(out) :: cell_neigh_ls(n_cells_tot,n_nei)
-integer :: i_cell
+integer, intent(out) :: cell_neigh_ls(n_cells_tot,n_nei), cell_neigh_ls_tot(n_cells_tot,n_nei_tot)
+integer :: i_cell, n_nei_tot
 
 do i_cell = 1, n_cells_tot
     call make_cell_list2(i_cell, n_cells, n_dim, n_nei, cell_neigh_ls(i_cell,:))
@@ -310,7 +315,136 @@ do i_cell = 1, n_cells_tot
     ! pairs only once
 end do
 
+!DEBUG
+!print*,"n_nei_tot",n_nei_tot
+!/DEBUG
+
+do i_cell = 1, n_cells_tot
+    call make_cell_list(i_cell, n_cells, n_dim, n_nei_tot, cell_neigh_ls_tot(i_cell,:))
+    ! All the neighbors are given, in order to loop over all neighbor
+    ! pair
+    
+    !DEBUG
+    !Print*,"inside suboutine get_cell_neigh_list"
+    !Print*,"cell_neigh_ls_tot of cell ",i_cell
+    !Print*,cell_neigh_ls_tot(i_cell,:)
+    !Print*,""
+end do
+
+
 end subroutine get_cell_neigh_list
+
+
+subroutine make_cell_list(in_cell, n_cells, n_dim, n_nei_tot, cell_list)
+#include 'control_simulation.h'
+!This routine gives an array with the index of all the neighbouring cells of the
+!input cell. Already corrected fo boundary conditions, assuming PBC in all 
+!directions
+!
+implicit none
+integer, intent(in) :: in_cell, n_dim, n_cells(n_dim), n_nei_tot
+integer, intent(out) :: cell_list(n_nei_tot)
+integer :: i_dim, j_dim, j_cell, i_list, x_cell, y_cell, z_cell, i, j, k, l
+
+!!DEBUG
+!print*,""
+!print*,"Building cell_neigh_ls_tot"
+!print*,"in_cell=",in_cell
+!print*,"n_cells",n_cells
+!print*,"n_nei_tot",n_nei_tot
+!!/DEBUG
+
+    z_cell = int( (in_cell - 1) / (n_cells(1)*n_cells(2)) + 1 )
+    y_cell = int( ( in_cell - n_cells(1) * n_cells(2) * (z_cell - 1) - 1 ) / n_cells(1) + 1 )
+    x_cell = int( in_cell - n_cells(1) * n_cells(2) * (z_cell - 1) - n_cells(1) * (y_cell - 1)) 
+    i_list = 1
+!DEBUG
+!print*,"x_cell,y_cell,z_cell",x_cell,y_cell,z_cell    
+!DEBUG
+
+select case (n_nei_tot)
+    case(27) ! l_cell = r_cut ! 27 neighbors per cell
+    do i = 1, 3 ! Go only once over pairs 
+       do j = 1, 3 
+           do k = 1, 3
+
+                j_cell = in_cell + i-2 + (j-2) * n_cells(1) + (k-2) * n_cells(2) * n_cells(1)
+
+                !DEBUG!
+                !print*,"j_cell",j_cell
+                !/DEBUG
+
+                !HERE CHECK PBC
+                if ( (x_cell .eq. 1) .and. (i.eq.1) ) j_cell = j_cell + n_cells(1)
+                if ( (x_cell .eq. n_cells(1)) .and. (i.eq.3) ) j_cell = j_cell - n_cells(1)
+                if ( (y_cell .eq. 1) .and. (j.eq.1) ) j_cell = j_cell + n_cells(1)*n_cells(2)
+                if ( (y_cell .eq. n_cells(2) ) .and. (j.eq.3) ) j_cell = j_cell - n_cells(1)*n_cells(2) 
+#       if SYMMETRY == 1
+                if ( (z_cell .eq. 1) .and. (k.eq.1) ) j_cell = j_cell + n_cells(1)*n_cells(2)*n_cells(3)
+                if ( (z_cell .eq. n_cells(3) ) .and. (k.eq.3) ) j_cell = j_cell - n_cells(1)*n_cells(2)*n_cells(3)   
+#       elif  SYMMETRY == 0
+                if ( (z_cell + k-2) .lt. 1 ) j_cell = 0 !Don't apply PBC in z, put cell 0 as neighbor
+                if ( (z_cell + k-2) .gt. n_cells(3) )  j_cell = 0 !cell 0 is empty, and will be ignored in the 
+                                                                  !neighbor cells loop                            
+#       endif    
+
+!!DEBUG
+!print*,"i_list",i_list
+!print*,"i, j, k", i, j, k 
+!print*,"cell_list(i_list)", j_cell
+!!/DEBUG
+                cell_list(i_list) = j_cell
+                i_list = i_list + 1
+                
+            end do
+        end do
+    end do
+
+    !DEBUG
+!print*,"inside subroutine make_cell_list"
+!print*,"Cell neigh list of cell", in_cell
+!print*,"shape",shape(cell_list)
+!print*,"size",size(cell_list)
+!print*,"n_nei_tot",n_nei_tot
+!print*,cell_list(:)
+!print*,""
+!/DEBUG
+
+    case(125) ! l_cell = r_cut / 2 ! 62 neighbors per cell
+    do i = 0, 4 ! if l_cell = r_cut / 2
+        do j = 0, 4 
+           do k = 0, 4
+               j_cell = in_cell + i-2 + (j-2) * n_cells(1) + (k-2) * n_cells(2) * n_cells(1)
+
+               !HERE CHECK PBC
+                !if ( (x_cell+i-2) .lt. 1 ) j_cell = j_cell + n_cells(1)
+                if ( (x_cell+i-2) .gt. n_cells(1) ) j_cell = j_cell - n_cells(1)
+                if ( (y_cell+j-2) .lt. 1 ) j_cell = j_cell + n_cells(1)*n_cells(2)  
+                if ( (y_cell+j-2) .gt. n_cells(2) ) j_cell = j_cell - n_cells(1)*n_cells(2)  
+#       if SYMMETRY == 1
+                if ( (z_cell + k-2) .lt. 1 ) j_cell = j_cell + n_cells(1)*n_cells(2)*n_cells(3)
+                if ( (z_cell + k-2) .gt. n_cells(3) )  j_cell = j_cell - n_cells(1)*n_cells(2)*n_cells(3)   
+#       elif  SYMMETRY == 0 
+                if ( (z_cell + k-2) .lt. 1 ) j_cell = 0 !Don't apply PBC in z, put cell 0 as neighbor
+                if ( (z_cell + k-2) .gt. n_cells(3) )  j_cell = 0   !cell 0 is empty, and will be ignored in the 
+                                                                    !neighbor cells loop                            
+
+#       endif                    
+                cell_list(i_list) = j_cell
+                i_list = i_list + 1
+            end do
+        end do
+    end do
+
+   
+    case default
+    print*,"Error in routine make_cell_list2, in cell_list"
+    stop
+    end select
+end subroutine
+     
+
+
 
 subroutine make_cell_list2(in_cell, n_cells, n_dim, n_nei, cell_list)
 #include 'control_simulation.h'
@@ -480,107 +614,7 @@ integer :: x_cell, y_cell, z_cell
 
 end subroutine
 
-subroutine make_cell_list(in_cell, n_cells, n_dim, cell_list)
-!OBSOLETE NOW
-! use routine make_cell_list2, that counts pairs
-!This routine gives an array with the index of all the neighbouring cells of the
-!input cell. Already corrected fo boundary conditions, assuming PBC in all 
-!directions
-!
-! POSSIBLE OPTIMIZATION : Loop between neighboring cells in one direction only,
-! to count interactions only once. ( do i=2,3; do j=2,3; bla; end do; end do)
-! instead of 3**2-1 neighbors, (3**2 -1 )/2 neighbors.
-implicit none
-integer, intent(in) :: in_cell, n_dim, n_cells(n_dim)
-integer, intent(out) :: cell_list( 3**n_dim - 1 )
-integer :: i_dim, j_dim, i_cell, j_cell, i_list, x_cell, y_cell, z_cell, i, j, k, l
-
-select case(n_dim)
-
-case(1)
-    i_list = 1
-    do i = 1, 3
-        j_cell = in_cell + i - 2
-        if ( j_cell .eq. in_cell ) cycle ! Dont count in_cell as neighbour
-    
-        !HERE CHECK PBC
-        if ( j_cell .eq. 0 ) j_cell = n_cells(1)
-        if ( j_cell .eq. ( n_cells(1) + 1 ) ) j_cell = 1
-
-        cell_list(i_list) = j_cell
-        i_list = i_list + 1
-    end do
-    
-     
-case(2)
-    y_cell = (in_cell - 1) / n_cells(1) + 1  ! Get y coordinate of in_cell
-    x_cell = in_cell - n_cells(1) * (y_cell - 1)
-    i_list = 1
-    do i = 1, 3
-        do j = 1, 3
-            j_cell = in_cell + i-2 + (j-2) * n_cells(1)
-            if ( j_cell .eq. in_cell ) cycle ! don't count same cell
-
-            !HERE CHECK FOR PBC IN ALL DIRECTIONS 
-            if ( (x_cell .eq. n_cells(1)) .and. (i.eq.3) ) j_cell = j_cell - n_cells(1)
-            if ( (x_cell .eq. 1) .and. (i.eq.1) ) j_cell = j_cell + n_cells(1)
-            if ( (y_cell .eq. n_cells(2) ) .and. (j.eq.3) ) j_cell = j_cell - n_cells(1)*n_cells(2)    
-            if ( (y_cell .eq. 1) .and. (j.eq.1) ) j_cell = j_cell + n_cells(1)*n_cells(2)           
-            
-            cell_list(i_list) = j_cell
-            i_list = i_list + 1
-        end do
-    end do
-    
-case(3)
-    z_cell = (in_cell - 1) / (n_cells(1)*n_cells(2)) + 1
-    y_cell = ( in_cell - n_cells(1) * n_cells(2) * (z_cell - 1) - 1 ) / n_cells(1) + 1 
-    x_cell = in_cell - n_cells(1) * n_cells(2) * (z_cell - 1) - n_cells(1) * (y_cell - 1) 
-    i_list = 1
-    do i = 1, 3
-        do j = 1, 3 
-            do k = 1, 3
-                j_cell = in_cell + i-2 + (j-2) * n_cells(1) + (k-2) * n_cells(2) * n_cells(1)
-                if ( j_cell .eq. in_cell ) cycle
-
-                !HERE CHECK PBC
-                if ( (x_cell .eq. 1) .and. (i.eq.1) ) j_cell = j_cell + n_cells(1)
-                if ( (x_cell .eq. n_cells(1)) .and. (i.eq.3) ) j_cell = j_cell - n_cells(1)
-                if ( (y_cell .eq. 1) .and. (j.eq.1) ) j_cell = j_cell + n_cells(1)*n_cells(2)
-                if ( (y_cell .eq. n_cells(2) ) .and. (j.eq.3) ) j_cell = j_cell - n_cells(1)*n_cells(2) 
-                if ( (z_cell .eq. 1) .and. (k.eq.1) ) j_cell = j_cell + n_cells(1)*n_cells(2)*n_cells(3)
-                if ( (z_cell .eq. n_cells(3) ) .and. (k.eq.3) ) j_cell = j_cell - n_cells(1)*n_cells(2)*n_cells(3)   
-
-                cell_list(i_list) = j_cell
-                i_list = i_list + 1
-            end do
-        end do
-    end do
-    
-case(4)
-    i_list = 1
-    do i = 1, 3
-        do j = 1, 3 
-            do k = 1, 3
-                do l = 1, 3
-                    j_cell = in_cell + i-2 + (j-2) * n_cells(1) + (k-2) * n_cells(2) + (l-2) * n_cells(3)
-                    if ( j_cell .eq. in_cell ) cycle
-                    !HERE CHECK PBC
-                    cell_list(i_list) = j_cell
-                    i_list = i_list + 1
-                end do
-            end do
-        end do
-    end do
-
-case default
-    print*, "ERROR in routine make_cell_list. "
-    print*, "This routine works fine for 3 dimensions or less "
-    stop 
-
-end select 
-
-end subroutine
+         
 
 !subroutine make_neig_ls(part_in_cell, r_nei, r0, n_part, cell_neigh_ls, n_cells_tot, n_dim, n_cells, l_cell, ff_list)
 !!This routine is supposed to do do a neighbor Verlet list, from the cell list. 

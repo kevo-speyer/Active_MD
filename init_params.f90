@@ -146,7 +146,7 @@ else      ! ---- READ mfa_input
     read(10,*) n_safe          ;print '(a30,i6)',   "n_safe  ",n_safe             
     read(10,*) dt              ;print '(a30,g12.5)',"dt      ",dt  
 #ifdef RESPA
-    read(10,*) n_time_short    ;print '(a30,i6)',   "n_obser ", n_time_short    
+    read(10,*) n_time_short    ;print '(a30,i6)',   "n_time_short ", n_time_short    
 #endif
     read(10,*) !c_dummy        
     read(10,*) !r_dummy       
@@ -267,6 +267,9 @@ end if
        write(20,210) n_obser," number of observation steps"
        write(20,210) n_safe ," # of steps between configuration storage"
        write(20,201) dt     ," time step increment"
+#ifdef RESPA
+       write(20,210) n_time_short," number of inner short time loops"
+#endif
        write(20,*)
        write(20,'(f12.5,a)') temp ," obsolete"
        write(20,'(f12.5,a)') temp ," temperature"

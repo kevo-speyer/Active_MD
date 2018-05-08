@@ -28,7 +28,7 @@ use commons
 !     r_head => r0(:,1:n_chain*n_mon:n_mon)
 ! end if 
      
-#       ifdef SHEARED
+#ifdef SHEARED
 
     if(i_time.eq.1) then
         do i_dim = 1, n_dim
@@ -138,7 +138,7 @@ use commons
         end if
 
     end do 
-#   endif
+#endif  */ endif SHEARED */
 
 ! ----- Update positions with Velocity Verlet 
 !print*,"aceleracion"
@@ -162,7 +162,8 @@ use commons
 
 #if BIN_TYPE == 2 
      !Get old cell of the particle 
-     call get_cell(r0(:,i_part), n_dim, n_cells, inv_l_cell, i_cell)
+!     call get_cell(r0(:,i_part), n_dim, n_cells, inv_l_cell, i_cell)
+!   already done in update_part_cell()
 #endif 
 
         r0(:,i_part) = r0(:,i_part) + dt*v(:,i_part) + 0.5*dt_2*a(:,i_part) 
@@ -191,9 +192,9 @@ use commons
 ! The cell linked list has an order: first all the brush particles (type 1 and 2), and then all the solvent
 ! particles ( a_type = 3 )
 if ( a_type(i_part) .eq. 3 ) then ! if solvent, then put particle last in linked list
-    call update_part_cell(r0(:,i_part), i_part, n_dim, n_cells, n_cells_tot,inv_l_cell, i_cell, n_mon_tot, part_in_cell, lpart_in_cell,r_nei, l_nei, 2)
+    call update_part_cell(r0(:,i_part), i_part, n_dim, n_cells, n_cells_tot,inv_l_cell, n_mon_tot, part_in_cell, lpart_in_cell,r_nei, l_nei, 2, cell_of_part)
 else ! if particle is not in the solvent, then put particle first
-    call update_part_cell(r0(:,i_part), i_part, n_dim, n_cells, n_cells_tot,inv_l_cell, i_cell, n_mon_tot, part_in_cell, lpart_in_cell ,r_nei, l_nei, 1)
+    call update_part_cell(r0(:,i_part), i_part, n_dim, n_cells, n_cells_tot,inv_l_cell,  n_mon_tot, part_in_cell, lpart_in_cell ,r_nei, l_nei, 1, cell_of_part)
 end if
 #endif 
 
@@ -227,7 +228,7 @@ end if
 !print*,r0
 !print*,"Fin positions after verlet"
 
-# if WALL == 1 /*explicit wall*/
+#if WALL == 1 /*explicit wall*/
  ! Update Wall positions 
  ! Claudio 2009: wall position works only en X coordinate. I use only f_t_wall(1)
 

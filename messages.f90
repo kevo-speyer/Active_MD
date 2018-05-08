@@ -229,7 +229,9 @@ print '(/a/)',"  * Doing simulation with profiles calculation (slower) "
 #    endif
 #endif
 
-
+#ifdef RESPA
+    print*,"  *  Multiple Time Scale Molecular Dynamics (rRESPA)"
+#endif
 
 
 

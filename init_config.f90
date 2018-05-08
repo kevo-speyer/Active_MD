@@ -257,29 +257,57 @@
           call my_binning()
 #       elif BIN_TYPE == 2
           print*, "   * Using Cell Linked list binning to reduce computations"
-          allocate(r_cell(n_dim),n_cells(n_dim),r_nei(n_mon_tot),l_nei(n_mon_tot),l_cell(n_dim),inv_l_cell(n_dim))
+          allocate(n_cells(n_dim), r_nei(n_mon_tot), l_nei(n_mon_tot), cell_of_part(n_mon_tot), l_cell(n_dim), inv_l_cell(n_dim))
           call make_binning(L_BOX,n_dim, boundary, r_cut_max, l_cell, inv_l_cell, n_cells,n_cells_tot, n_nei_cells)
           !First parameter is L_BOX: 1 l_cell = r_cut ! CAN BE MODIFIED IN 'control_simulation.h'
                                    ! 2 l_cell = r_cut / 2 
+          n_nei_cells_tot = n_nei_cells * 2 + 1 ! Total number of neighboring cells = 3**dim or 5**dim                        
           print*,"   - Total Number of cells", n_cells_tot
           print*,"   - nr of cells in each direction ",n_cells(:)
           print*,"   - cell size in each direction",l_cell(:)
+          print*,"   - Number of neighbor cells to count interactions + 1", n_nei_cells_tot
+          allocate(part_in_cell(0:n_cells_tot),lpart_in_cell(0:n_cells_tot), cell_neigh_ls(n_cells_tot, n_nei_cells), cell_neigh_ls_tot(n_cells_tot, n_nei_cells_tot) )
 
-          allocate(part_in_cell(0:n_cells_tot),lpart_in_cell(0:n_cells_tot),cell_neigh_ls(n_cells_tot, n_nei_cells) )
-
-          call neigh_list(r0, a_type, n_mon_tot, n_dim,n_cells, n_cells_tot, boundary, inv_l_cell, part_in_cell, lpart_in_cell, r_nei, l_nei)
+          call neigh_list(r0, a_type, n_mon_tot, n_dim,n_cells, n_cells_tot, boundary, inv_l_cell, part_in_cell, lpart_in_cell, r_nei, l_nei, cell_of_part)
           print*,"   - Neighbor cell-linked list and particle linked list for each cell done"
-          call get_cell_neigh_list(n_cells_tot, n_cells, n_dim, n_nei_cells, cell_neigh_ls)
+          call get_cell_neigh_list(n_cells_tot, n_cells, n_dim, n_nei_cells, n_nei_cells_tot, cell_neigh_ls, cell_neigh_ls_tot)
+                                                                    
           print*,"   - Cell-linked and particle-linked lists done"        
 
-
+!DEBUGi
+!do i_dummy = 1, n_nei_cells_tot
+!    print*,"cell_neigh_ls_tot(1,:) = ", i_dummy,cell_neigh_ls_tot(1,i_dummy)
+!    print*,""
+!end do
+!DEBUG
           
           
 #       endif        
-  
+#ifndef RESPA  
           call fluid_fluid()
           print '(/a,f16.5/)',"    * V_fluid_fluid for the first configuration = ",v_fluid_fluid
-          force(:,:)= 0.
+#else
+        force_long(:,:) = 0.
+        force(:,:) = 0.
+
+        !DEBUG 
+        print*,""
+        print*, "   ** First call calc_short_force"
+        !/DEBUG
+
+        call calc_short_force()
+
+        !DEBUG
+        print*,""
+        print*, "First call calc_solv_solv_force"
+        !/DEBUG
+
+        call calc_solv_solv_force()
+
+
+        print '(/a,f16.5/)',"    * V_fluid_fluid for the first configuration = ", v_brush_brush+v_brush_sol+v_sol_sol
+#endif
+!          force(:,:)= 0.
           call check_fluid_fluid()
 
 !

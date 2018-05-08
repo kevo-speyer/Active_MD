@@ -26,7 +26,12 @@
       e_wall_wall_1 = 0.
       e_wall_wall_2 = 0.
 !
-      v_fluid_fluid_1 = 0.
+#ifdef RESPA
+    v_brush_sol = 0.
+    v_brush_brush = 0.
+    v_sol_sol = 0.
+#endif
+        v_fluid_fluid_1 = 0.
       v_fluid_fluid_2 = 0.
       t_fluid_1 = 0.
       t_fluid_2 = 0.
@@ -35,6 +40,7 @@
 !
       v_fluid_wall_1 = 0.
       v_fluid_wall_2 = 0.
+
 !
       v_total_1 = 0.
       v_total_2 = 0.

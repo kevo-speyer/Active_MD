@@ -208,8 +208,15 @@ subroutine conf_default()
        call my_binning()
 #   endif
 
+
        force(:,:) = 0.
+#ifndef RESPA 
        call fluid_fluid()
+#else
+!        call calc_short_force()
+!        call calc_solv_solv_force()
+!        v_fluid_fluid= v_brush_brush+v_brush_sol+v_sol_sol
+#endif
 
 #if SYMMETRY == 0
 #       if WALL !=1 /* not explicit wall*/
