@@ -75,14 +75,10 @@ subroutine calc_solv_solv_force()
 #endif
 
 !$OMP DO SCHEDULE(STATIC,10) REDUCTION(+:force,v_sol_sol)
-    do i_cell = 1, n_cells_tot ! loop over all cells
-        i_part = lpart_in_cell(i_cell) ! get first particle in i_cell
-         
-        do while(i_part .ne. 0)  ! loop over particles in i_cell
-          i_type = a_type(i_part)
-          if( i_type .ne. 3 ) exit ! If particle not solvent, go to next cell. Cell linked list is done, such that the last 
-          ! particles in a cell are always solvent. If this particle is not solvent, there is no more solvent in this cell
-         ! Go to next cell 
+
+do i_part = part_init_d + 1, n_mon_tot ! loop over melt  
+    i_cell = cell_of_part(i_part) ! get the cell of the particle i_part
+    i_type = a_type(i_part)
 # endif
 
           f_ipart(:) =0.
@@ -101,8 +97,14 @@ subroutine calc_solv_solv_force()
                 j_cell = cell_neigh_ls(i_cell,j_dummy) ! j_cell = neighbour cell
         
                 j_part = lpart_in_cell(j_cell)
+
                 do while(j_part .ne. 0) ! loop over neighbour particles in j_cell
-                     j_type = a_type(j_part)
+    
+                !DEBUG
+                !print*,"i_part,j_part",i_part,j_part
+                !DEBUG
+
+                j_type = a_type(j_part)
                      if( j_type .ne. 3 ) exit ! If particle not solvent, go to next cell. Cell linked list is done,
                     ! such that the last  particles in a cell are always solvent. If this particle is not solvent,
                    ! there is no more solvent in this cell. Go to next cell                                 
@@ -147,8 +149,11 @@ subroutine calc_solv_solv_force()
 
                   r_12 = r_6*r_6
                   pot_loc = (r_12-r_6) - e_shift(i_type,j_type)
-
-                  v_sol_sol = v_sol_sol + l_eps*pot_loc
+!!DEBUG
+!print*,"l_eps",l_eps,"pot_loc",pot_loc
+!print*,"v_sol_sol", v_sol_sol
+!!/DEBUG
+                    v_sol_sol = v_sol_sol + l_eps*pot_loc
 
                   r_dummy = l_eps*(-12*r_12+6*r_6)*inv_r_2
 #endif /* SOL_SOL_INT*/
@@ -158,6 +163,12 @@ subroutine calc_solv_solv_force()
                   force_loc(2) = r_dummy*delta_r(2)
                   force_loc(3) = r_dummy*delta_r(3)
                   ! HPC
+
+!DEBUG
+!print*,"force",i_part,j_part
+!print*,"force",force_loc(:)
+!DEBUG
+
 #       if BIN_TYPE == 0 ||  BIN_TYPE == 2/* binning.f90 */
                   f_ipart(1) = f_ipart(1) -  force_loc(1)
                   f_ipart(2) = f_ipart(2) -  force_loc(2)
@@ -305,6 +316,11 @@ subroutine calc_solv_solv_force()
                   force_loc(1) = r_dummy*delta_r(1)
                   force_loc(2) = r_dummy*delta_r(2)
                   force_loc(3) = r_dummy*delta_r(3)
+                
+!DEBUG
+!print*,"force",i_part,j_part 
+!print*,"force",force_loc(:)
+!DEBUG
 
                   f_ipart(1) = f_ipart(1) -  force_loc(1)
                   f_ipart(2) = f_ipart(2) -  force_loc(2)
@@ -406,7 +422,7 @@ subroutine calc_solv_solv_force()
 
 #   if THERMOSTAT == 1 /* Langevin */
 ! COMMENT to check NVE ensemble          
- call lgv_forces(force_long)
+! call lgv_forces(force_long,sig_long)
 #   endif /* Langevin */
 
 #if BIN_TYPE == 0 || BIN_TYPE == 1
@@ -418,11 +434,7 @@ end do ! loop over particles
 
 #elif BIN_TYPE == 2
 
-        i_part = l_nei(i_part)
- 
-             end do    ! loop over particles in i_cell
-
-      end do ! loop over all cells
+      end do ! loop over all melt particles
 
 !$OMP END DO 
 !$OMP END PARALLEL 
@@ -430,6 +442,12 @@ end do ! loop over particles
 
 
 #endif
+
+!DEBUG
+!DEBUG
+!        print*,"v_sol_sol",v_sol_sol
+!DEBUG
+!DEBUG
 
 
 #ifdef FLUKT 

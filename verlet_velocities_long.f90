@@ -30,14 +30,14 @@ use commons
 !            v(1,i_part) = v_half(1,i_part) + 0.5*dt*a(1,i_part)       ! old force(1,i_part)*inv_mass(i_part)
 !            v(2,i_part) = v_half(2,i_part) + 0.5*dt*a(2,i_part)       ! old force(2,i_part)*inv_mass(i_part)
 !            v(3,i_part) = v_half(3,i_part) + 0.5*dt*a(3,i_part)       ! old force(3,i_part)*inv_mass(i_part)
-            v(1,i_part) = v(1,i_part) + 0.5*dt*a(1,i_part)    
+            v(1,i_part) = v(1,i_part) + 0.5*dt_long*a(1,i_part)    
 #ifdef BIDIMENSIONAL
             v(2,i_part) = 0.0d0
 #else 
-            v(2,i_part) = v(2,i_part) + 0.5*dt*a(2,i_part)    
+            v(2,i_part) = v(2,i_part) + 0.5*dt_long*a(2,i_part)    
             !print *, v(2,i_part), a(2,i_part)
 #endif
-            v(3,i_part) = v(3,i_part) + 0.5*dt*a(3,i_part)    
+            v(3,i_part) = v(3,i_part) + 0.5*dt_long*a(3,i_part)    
         end do
 
 
@@ -84,7 +84,7 @@ use commons
             end do
 #endif /* ifdef RELAX */
 
-select case(meas_ener)
+select case(meas_ener) ! case 2 outputs the kinetik and potential energy
 case(1)
     ! do nuffin
 case(2)
@@ -122,10 +122,9 @@ case(2)
 !
 #ifndef RESPA
     v_total = v_wall_wall + v_fluid_wall + v_fluid_fluid + v_intra_molec
-#endif
-#ifdef RESPA
-    v_total = v_wall_wall + v_fluid_wall + v_brush_brush + v_brush_sol + v_intra_molec ! Add interaction energy between solvent_solvent 
-        !calculated in routine calc_solv_solv_force
+#else /* ifdef RESPA*/
+    v_total = v_wall_wall + v_fluid_wall + v_brush_brush + v_brush_sol + v_intra_molec + v_sol_sol ! Add interaction energy between solvent_solvent 
+        !calculated in routine calc_solv_solv_force and calc_short_forces
 #endif      
 
 #ifdef BENDING

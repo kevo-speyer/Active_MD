@@ -68,7 +68,7 @@
 
 /* Thermostat */
 
-#define THERMOSTAT 0 /*  1=LGV 0=DPD       */
+#define THERMOSTAT 1 /*  1=LGV 0=DPD       */
 
 #define DPD_WEIGHT 0 /*  0=usual choice of DPD weight: Wd=(1-r/rc)^2 ; 1= constant: Wr=Wd=1 ; 2 "quartic" */ 
                      /*  wd=(1-r/rc)^4                                                                    */  

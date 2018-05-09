@@ -3,7 +3,7 @@
 ! * Computes random and friction forces for langevin thermostat 
 ! * It is assumed that the routine is called inside the fluid_fluid routine
 
-subroutine lgv_forces(force_tmp)
+subroutine lgv_forces(force_tmp,sig_in)
     use commons
 #ifdef _OPENMP
       use omp_lib
@@ -17,6 +17,7 @@ subroutine lgv_forces(force_tmp)
     integer :: i
 !    integer, intent(in) :: q_part
     real(kind=8), intent(inout) :: force_tmp(3,n_part)
+    real(kind=8), intent(in) :: sig_in
     real(kind=8) :: g_rand,r_versor(3),delta_v(3),rrc
 !    real(kind=8),intent(out) :: f_lang(3) 
 
@@ -39,7 +40,7 @@ subroutine lgv_forces(force_tmp)
 #else
        g_rand=rnor()
 #endif
-       vec_dummy(i) = sig*g_rand*sqrt(mass(q_part))    
+       vec_dummy(i) = sig_in*g_rand*sqrt(mass(q_part))    
     end do
 !print*,"q_part lgv",q_part
 !original:      vec_dummy(1) = sig*rnor()*sqrt(mass(i_part))

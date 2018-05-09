@@ -634,7 +634,7 @@ stop
 
 #   if THERMOSTAT == 1 /* Langevin */
 ! COMMENT to check NVE ensemble          
- call lgv_forces(force)
+! call lgv_forces(force,sig)
 #   endif /* Langevin */
 
 #if BIN_TYPE == 0 || BIN_TYPE == 1
@@ -646,14 +646,13 @@ end do ! loop over particles
 
 #elif BIN_TYPE == 2
 
-             end do    ! loop over i_part particles belonging to brush 
+end do    ! loop over i_part particles belonging to brush 
 !$OMP END DO 
 !$OMP END PARALLEL 
 !END PARALLEL ZONE
 
 
 #endif
-
 
 #ifdef FLUKT 
     if((n_mon_d.or.n_chain_d.or.n_mon_e.or.n_chain_e).gt.2) then

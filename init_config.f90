@@ -303,8 +303,9 @@
         !/DEBUG
 
         call calc_solv_solv_force()
-
-
+!DEBUG
+!        print*,"v_sol_sol",v_sol_sol
+!DEBUG
         print '(/a,f16.5/)',"    * V_fluid_fluid for the first configuration = ", v_brush_brush+v_brush_sol+v_sol_sol
 #endif
 !          force(:,:)= 0.
