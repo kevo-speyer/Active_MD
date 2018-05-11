@@ -132,13 +132,15 @@ use commons
 # endif /* symmetry */
 
 #ifndef RESPA
-!
+
+!NOW THIS IS DONE IN verlet_velocities_long.f90 
+
 !   ---- Measurement of some quantities 
-!
+
 
 !---  Kinetic energies and temperatures 
-!
-!
+
+
 ! Instantaneous temperature
 
       T_inst = 0.

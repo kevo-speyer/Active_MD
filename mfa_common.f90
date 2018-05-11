@@ -599,7 +599,7 @@ real (kind=8) :: press_tensor(3,3),press_tensor_mean(3,3)
     real(kind=8) :: dt_long, sig_long, v_sol_sol, v_brush_sol, v_brush_brush! 
     !v_sol_sol = interaction energy between solvent particles (a_type=3)
     integer :: n_time_short, i_time_short
-    real (kind=8), allocatable :: force_long(:,:)
+    real (kind=8), allocatable :: force_long(:,:), a_long(:,:)
      real(kind=8) :: r_cut_ss, inv_r_cut_ss
     
 #endif

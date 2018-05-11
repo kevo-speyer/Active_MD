@@ -2,7 +2,9 @@
       use commons ; implicit none
 #     include 'control_simulation.h'      
       integer :: mode
-       
+#ifdef RESPA
+      real(kind=8) :: a_tot(n_dim,n_mon_tot) 
+#endif
       select case(mode)
 
      case(1) ! initialization
@@ -12,6 +14,14 @@
         open(13,file="vel.dat",status="unknown",position="append")
 
     case(2)  ! writing of safe confs: conf_new and conf_xmol
+
+
+        do i_part = 1, part_init_d
+            a_tot(:,i_part) = a(:,i_part)
+        end do
+        do i_part =part_init_d+1,n_mon_tot
+            a_tot(:,i_part) = a(:,i_part) + a_long(:,i_part)
+        end do
 !
 ! *** Restart configuration
 !
@@ -40,8 +50,12 @@
                  write(10,103) (v(i_dim,i_part),i_dim=1,n_dim)
              end do
              do i_part = 1,n_part
+#ifdef RESPA
+            write(10,103) (a_tot(i_dim,i_part),i_dim=1,n_dim)
+#else
                  write(10,103) (a(i_dim,i_part),i_dim=1,n_dim)
-             end do
+#endif
+                 end do
 !obs         end do
        !  if(f_explicit_wall) then !only if considering explicit wall atoms
 #       if WALL == 1        

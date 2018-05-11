@@ -96,6 +96,12 @@ program md_pb
 
         r_time = dble(s_time+i_time-1)*dt
 
+
+        !DEBUG
+        !  do i_part =1 , n_mon_tot
+        !    print*,"force_long", force_long(:,i_part)
+        !  end do
+        !DEBUG
 #ifdef RESPA
         call verlet_velocities_long(1)
 
@@ -108,10 +114,23 @@ program md_pb
 
         call verlet_positions() ! MAKE THIS RESPA COMPATIBLE!
 
+
+        !!!DEBUG
+        !do i_part = 1, n_mon_tot
+        !print*,r0(:,i_part)
+        !print*,v(:,i_part)
+        !print*,a(:,i_part)+a_long(:,i_part)
+        !end do
+        !/DEBUG
         !deb           if (i_time == 1 ) then
         !deb               call write_conf(1,r0,10)
         !deb               stop
         !deb           end if
+
+
+!DEBUG : HASTA ACA VA BIEN
+
+
 
 #if BIN_TYPE == 0 || BIN_TYPE == 1
         call check_skin  !calculates if it is necessary to update the verlet list. If it is,
@@ -222,7 +241,12 @@ call metronome(5) ! modify k_or, if Rend is in activation zone
 #ifdef POISEUILLE
        call constant_force() ! Poseuille flow generation
 #endif
-
+        !!DEBUG
+        !do i_part = 1, n_mon_tot
+        !print*,r0(:, i_part)
+        !print*,v(:, i_part)
+        !end do
+        !!DEBUG
 
         ! -----  Update  velocities
         !MAKE THIS ROUTINE RESPA COMPATIBLE!
@@ -230,8 +254,21 @@ call metronome(5) ! modify k_or, if Rend is in activation zone
 
 #ifdef RESPA
         end do ! short time loop
+
         force_long(:,:) = 0.0 ! set solvent (long) forces to 0
-        call calc_solv_solv_force() ! 
+
+
+
+!HASTA ACA VA BIEN 
+
+        call calc_solv_solv_force() !
+        
+        !DEBUG
+        !do i_part = 1, n_mon_tot
+        !print*,force_long(:, i_part)
+        !end do
+        !DEBUG
+
         call verlet_velocities_long(2)
 #endif        
 

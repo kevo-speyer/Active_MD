@@ -166,6 +166,13 @@ use commons
 !   already done in update_part_cell()
 #endif 
 
+!!DEBUG
+!print*,"r0 before",r0(:,i_part)
+!print*,"v before",v(:,i_part)
+!print*,"a before",a(:,i_part)
+!
+!!/DEBUG
+
         r0(:,i_part) = r0(:,i_part) + dt*v(:,i_part) + 0.5*dt_2*a(:,i_part) 
 
 !CORRECT FOR PBC
@@ -187,6 +194,13 @@ use commons
                         end if
                     end do
 
+ !DEBUG
+!print*,"r0 after",r0(:,i_part)
+!print*,"v after",v(:,i_part)
+!print*,"a after",a(:,i_part)
+!/DEBUG
+
+
 # if BIN_TYPE == 2
 ! Check if the particle changes cell and update cell linked list
 ! The cell linked list has an order: first all the brush particles (type 1 and 2), and then all the solvent
@@ -198,7 +212,7 @@ else ! if particle is not in the solvent, then put particle first
 end if
 #endif 
 
-       
+      
 
 #       if STORE == 1 
 ! ----- Update unfolded coordinates

@@ -15,13 +15,13 @@ use commons
   ! Update accelerations with the new force values 
 
         do i_part = part_init_d+1,n_mon_tot ! just loop over solvent
-            a(1,i_part) = force_long(1,i_part)*inv_mass(i_part)
+            a_long(1,i_part) = force_long(1,i_part)*inv_mass(i_part)
 #ifdef BIDIMENSIONAL
-            a(2,i_part) = 0.0d0 
+            a_long(2,i_part) = 0.0d0 
 #else 
-            a(2,i_part) = force_long(2,i_part)*inv_mass(i_part)
+            a_long(2,i_part) = force_long(2,i_part)*inv_mass(i_part)
 #endif
-            a(3,i_part) = force_long(3,i_part)*inv_mass(i_part)
+            a_long(3,i_part) = force_long(3,i_part)*inv_mass(i_part)
 !        end do
 
 ! Update velocities 
@@ -30,14 +30,14 @@ use commons
 !            v(1,i_part) = v_half(1,i_part) + 0.5*dt*a(1,i_part)       ! old force(1,i_part)*inv_mass(i_part)
 !            v(2,i_part) = v_half(2,i_part) + 0.5*dt*a(2,i_part)       ! old force(2,i_part)*inv_mass(i_part)
 !            v(3,i_part) = v_half(3,i_part) + 0.5*dt*a(3,i_part)       ! old force(3,i_part)*inv_mass(i_part)
-            v(1,i_part) = v(1,i_part) + 0.5*dt_long*a(1,i_part)    
+            v(1,i_part) = v(1,i_part) + 0.5*dt_long*a_long(1,i_part)    
 #ifdef BIDIMENSIONAL
             v(2,i_part) = 0.0d0
 #else 
-            v(2,i_part) = v(2,i_part) + 0.5*dt_long*a(2,i_part)    
+            v(2,i_part) = v(2,i_part) + 0.5*dt_long*a_long(2,i_part)    
             !print *, v(2,i_part), a(2,i_part)
 #endif
-            v(3,i_part) = v(3,i_part) + 0.5*dt_long*a(3,i_part)    
+            v(3,i_part) = v(3,i_part) + 0.5*dt_long*a_long(3,i_part)    
         end do
 
 
@@ -126,6 +126,14 @@ case(2)
     v_total = v_wall_wall + v_fluid_wall + v_brush_brush + v_brush_sol + v_intra_molec + v_sol_sol ! Add interaction energy between solvent_solvent 
         !calculated in routine calc_solv_solv_force and calc_short_forces
 #endif      
+
+
+!print*,"v_wall_wall",v_wall_wall
+!print*,"v_fluid_wall",v_fluid_wall
+!print*,"v_sol_sol",v_fluid_fluid
+!print*,"v_intra_molec",v_intra_molec
+
+
 
 #ifdef BENDING
         v_total = v_total + v_bend !Add bending energy  

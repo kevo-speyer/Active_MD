@@ -203,7 +203,8 @@ subroutine init_system()
     !Could be optimized for memory consumption
     ! allocate(force_long(n_dim,n_part-n_mon*n_chain))
     !but code would be less readable
-    allocate(force_long(n_dim,part_init_d+1:n_part))
+    allocate(a_long(n_dim,part_init_d+1:n_part),force_long(n_dim,part_init_d+1:n_part))
+  
 #endif
 ! Velocities and accelerations: 
 

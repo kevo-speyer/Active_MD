@@ -287,8 +287,8 @@
           call fluid_fluid()
           print '(/a,f16.5/)',"    * V_fluid_fluid for the first configuration = ",v_fluid_fluid
 #else
-        force_long(:,:) = 0.
-        force(:,:) = 0.
+!        force_long(:,:) = 0.
+!        force(:,:) = 0.
 
         !DEBUG 
         print*,""
@@ -303,13 +303,21 @@
         !/DEBUG
 
         call calc_solv_solv_force()
+      
+        !DEBUG
+        !  do i_part =1 , n_mon_tot
+        !    print*, a(:,i_part)
+        !  end do
+        !DEBUG
 !DEBUG
 !        print*,"v_sol_sol",v_sol_sol
 !DEBUG
         print '(/a,f16.5/)',"    * V_fluid_fluid for the first configuration = ", v_brush_brush+v_brush_sol+v_sol_sol
 #endif
-!          force(:,:)= 0.
-          call check_fluid_fluid()
+          force(:,:)= 0.0
+       force_long(:,:) = 0.0
+
+       call check_fluid_fluid()
 
 !
 ! Force switch on even with conf_old if s_time = 1        

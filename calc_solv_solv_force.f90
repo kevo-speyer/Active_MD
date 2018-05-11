@@ -445,7 +445,11 @@ end do ! loop over particles
 
 !DEBUG
 !DEBUG
-!        print*,"v_sol_sol",v_sol_sol
+
+!do i_part = part_init_d + 1, n_mon_tot
+!    print*,force_long(:,i_part)
+!end do
+        !print*,"v_sol_sol",v_sol_sol
 !DEBUG
 !DEBUG
 
