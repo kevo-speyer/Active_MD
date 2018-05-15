@@ -249,7 +249,7 @@
   113 format(i3,3f13.7)
   120 format(2i10)
   130 format(3i13)
-  !203 format(a,3f13.4)
-  203 format(a,3f13.9)
+  203 format(a,3f13.4)
+  !203 format(a,3f13.9)
 !
       end

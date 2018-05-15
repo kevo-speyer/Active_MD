@@ -233,7 +233,14 @@ print '(/a/)',"  * Doing simulation with profiles calculation (slower) "
     print*,"  *  Multiple Time Scale Molecular Dynamics (rRESPA)"
 #endif
 
+#if SOL_SOL_INT == 2
+    print*,"  *  Solvent-Solvent interaction is via Soft-Potential"
+    print*,"  - Strength of interaction is a = epsil(3,3)" 
+    !print*,"  - r_cut for soft potential is r_c = ", r_cut_ss 
+#elif SOL_SOL_INT == 1
+    print*,"  *  Solvent-Solvent interaction is via Lennard-Jones Pot"
 
+#endif
 
 
 

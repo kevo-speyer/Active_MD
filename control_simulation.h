@@ -68,7 +68,7 @@
 
 /* Thermostat */
 
-#define THERMOSTAT 1 /*  1=LGV 0=DPD       */
+#define THERMOSTAT 0 /*  1=LGV 0=DPD       */
 
 #define DPD_WEIGHT 0 /*  0=usual choice of DPD weight: Wd=(1-r/rc)^2 ; 1= constant: Wr=Wd=1 ; 2 "quartic" */ 
                      /*  wd=(1-r/rc)^4                                                                    */  
@@ -117,6 +117,6 @@
  
 #define RESPA /*Implement multiple time scale molecular dynamics (Ref: Tuckerman Berne Martyna, 1992, JCP)*/
 
-#define SOL_SOL_INT 1 /* Control the interactions between solvent-solvent. WARNING: IT ONLY WORKS WITH RESPA DEFINED(a_type=3) */
+#define SOL_SOL_INT 2 /* Control the interactions between solvent-solvent. WARNING: IT ONLY WORKS WITH RESPA DEFINED(a_type=3) */
                       /* 1 is Lennard-Jones Potential*/
                       /* 2 is Soft Potentail (typically used in DPD)*/

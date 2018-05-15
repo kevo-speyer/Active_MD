@@ -22,7 +22,7 @@ flags+=  -O3 -ip #-i-static   -align all  -axSSSE3  # -axSSE4.1   # optimization
 #flags+=  -qopenmp # multi-platform shared-memory parallel programming
 #flags+=  -warn unused
 #flags+=  -g -check bounds -traceback
-#flags+=     -pg # profiling
+#flags+= -pg # profiling
 ref_dir = REF # reference directory for patching
 
 # This forces execution of this rules, no matters the time in the files        

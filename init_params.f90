@@ -144,8 +144,10 @@ else      ! ---- READ mfa_input
     read(10,*) n_relax         ;print '(/a30,i6)',  "n_relax ",n_relax     
     read(10,*) n_obser         ;print '(a30,i6)',   "n_obser ",n_obser        
     read(10,*) n_safe          ;print '(a30,i6)',   "n_safe  ",n_safe             
+#ifndef RESPA
     read(10,*) dt              ;print '(a30,g12.5)',"dt      ",dt  
-#ifdef RESPA
+#else  /* ifdef RESPA*/
+    read(10,*) dt              ;print '(a30,g12.5)',"dt (inner loop) =  ",dt
     read(10,*) n_time_short    ;print '(a30,i6)',   "n_time_short ", n_time_short    
 #endif
     read(10,*) !c_dummy        

@@ -10,7 +10,7 @@ subroutine calc_solv_solv_force()
 
      implicit none
      real (kind=8) :: delta_v(3),r_versor(3),g_rand,rrc,f_ipart(3) ! Needed for DPD_EMBEDDED only
-     real (kind=8) :: l_eps,r_cut2,r_61
+     real (kind=8) :: l_eps,r_cut2,r_61, sigma_2_ss
      real (kind=8) :: f_cou_real(3)
      real(kind=8)  :: inv_r_2,inv_sqrt_r_2
 ! cache blocking 
@@ -20,7 +20,7 @@ subroutine calc_solv_solv_force()
 !For solvent_solvent interactions only, so l_eps is fixed 
       l_eps = epsil(3,3)
       r_cut2 = range_2(3,3)
-
+      sigma_2_ss = sigma_2(3,3)
 
      
 #       if SYSTEM == 2 || SYSTEM == 3
@@ -57,7 +57,7 @@ subroutine calc_solv_solv_force()
 
 !Warning: Paralelization not adapted for SYMMETRY=1 
 # if BIN_TYPE == 0 || BIN_TYPE == 1
-!$OMP PARALLEL DEFAULT(PRIVATE) SHARED(r_2_min,force_long,v_sol_sol,n_part,a_type,ff_list, range_2, r0,inv_boundary, boundary, sigma_2,e_shift,sig_long,mass,friction,v, inv_range_2, r_cut_ss, inv_r_cut_ss, r_cut_dpd_2)
+!$OMP PARALLEL DEFAULT(PRIVATE) SHARED(r_2_min,force_long,v_sol_sol,n_part,a_type,ff_list, range_2, r0,inv_boundary, boundary,sigma_2,e_shift,sig_long,mass,friction,v, inv_range_2, r_cut_ss, inv_r_cut_ss,r_cut_dpd_2)
 #ifdef _OPENMP
     ith=omp_get_thread_num()
 #endif
@@ -68,13 +68,13 @@ subroutine calc_solv_solv_force()
           i_dummy = ff_list(0,i_part)
           i_type = a_type(i_part)
 # elif BIN_TYPE == 2  /* cell_list.f90 */
-!$OMP PARALLEL DEFAULT(PRIVATE)
-!SHARED(r_2_min,force_long,v_sol_sol,n_part,a_type,l_cell,n_cells_tot,n_nei_cells,part_in_cell,lpart_in_cell,n_cells,r_nei,l_nei,cell_neigh_ls,range_2, r0,inv_boundary, boundary, sigma_2, e_shift,sig_long,mass,friction,v, inv_range_2, r_cut_ss, inv_r_cut_ss, r_cut_dpd_2)
+!$OMP PARALLEL DEFAULT(PRIVATE) SHARED(r_2_min, force_long, v_sol_sol, part_init_d, n_mon_tot, a_type, n_nei_cells, cell_of_part, lpart_in_cell, l_nei, l_eps, cell_neigh_ls, r0, r_cut2, inv_boundary, boundary, sigma_2_ss, e_shift, sig_long, mass, friction, v, r_cut_ss, inv_r_cut_ss, inv_range_2, r_cut_dpd_2)
+
 #ifdef _OPENMP
     ith=omp_get_thread_num()
 #endif
 
-!$OMP DO SCHEDULE(STATIC,10) REDUCTION(+:force,v_sol_sol)
+!$OMP DO SCHEDULE(STATIC,10) REDUCTION(+:force_long,v_sol_sol)
 
 do i_part = part_init_d + 1, n_mon_tot ! loop over melt  
     i_cell = cell_of_part(i_part) ! get the cell of the particle i_part
@@ -140,20 +140,17 @@ do i_part = part_init_d + 1, n_mon_tot ! loop over melt
                  ! IF SOL SOL INT ARE SOFT
 #if SOL_SOL_INT == 2
                   r_dummy =  (inv_sqrt_r_2 - inv_r_cut_ss )
-                v_sol_sol = v_sol_sol + l_eps * r_cut_ss * r_2 *r_dummy**2 
-                r_dummy = l_eps * r_dummy 
+                v_sol_sol = v_sol_sol + 0.5 * l_eps * r_cut_ss * r_2 *r_dummy**2 
+                r_dummy = - l_eps * r_dummy 
                 ! ELSE IF SOL SOL INTERACTIONS ARE LJ: 
 #elif SOL_SOL_INT == 1
-                  r_61= sigma_2(i_type,j_type)*inv_r_2 
+                  r_61= sigma_2_ss*inv_r_2 
                   r_6 = r_61*r_61*r_61
 
                   r_12 = r_6*r_6
                   pot_loc = (r_12-r_6) - e_shift(i_type,j_type)
-!!DEBUG
-!print*,"l_eps",l_eps,"pot_loc",pot_loc
-!print*,"v_sol_sol", v_sol_sol
-!!/DEBUG
-                    v_sol_sol = v_sol_sol + l_eps*pot_loc
+
+                  v_sol_sol = v_sol_sol + l_eps*pot_loc
 
                   r_dummy = l_eps*(-12*r_12+6*r_6)*inv_r_2
 #endif /* SOL_SOL_INT*/
@@ -297,11 +294,11 @@ do i_part = part_init_d + 1, n_mon_tot ! loop over melt
                  ! IF SOL SOL INT ARE SOFT
 #if SOL_SOL_INT == 2
                   r_dummy =  (inv_sqrt_r_2 - inv_r_cut_ss )
-                v_sol_sol = v_sol_sol + l_eps * r_cut_ss * r_2 *r_dummy**2 
-                r_dummy = l_eps * r_dummy 
+                v_sol_sol = v_sol_sol + 0.5 * l_eps * r_cut_ss * r_2 *r_dummy**2 
+                r_dummy = - l_eps * r_dummy 
                 ! ELSE IF SOL SOL INTERACTIONS ARE LJ: 
 #elif SOL_SOL_INT == 1
-                  r_61= sigma_2(i_type,j_type)*inv_r_2 
+                  r_61= sigma_2_ss*inv_r_2 
                   r_6 = r_61*r_61*r_61
 
                   r_12 = r_6*r_6
@@ -422,7 +419,7 @@ do i_part = part_init_d + 1, n_mon_tot ! loop over melt
 
 #   if THERMOSTAT == 1 /* Langevin */
 ! COMMENT to check NVE ensemble          
-! call lgv_forces(force_long,sig_long)
+ call lgv_forces(force_long,sig_long)
 #   endif /* Langevin */
 
 #if BIN_TYPE == 0 || BIN_TYPE == 1

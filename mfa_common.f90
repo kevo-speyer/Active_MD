@@ -604,9 +604,6 @@ real (kind=8) :: press_tensor(3,3),press_tensor_mean(3,3)
     
 #endif
 
-#if SOL_SOL_INT == 2
-#endif
-
 !!OMP VARIABLES 
 #ifdef _OPENMP
 integer, dimension(:), allocatable :: par_jsrseed

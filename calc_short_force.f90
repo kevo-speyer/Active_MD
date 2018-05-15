@@ -53,25 +53,24 @@ subroutine calc_short_force()
 print*, "ERROR: VERLET LIST NOT COMPATIBLE WITH RESPA"
 stop
 
-!$OMP PARALLEL DEFAULT(PRIVATE) SHARED(r_2_min,force,v_fluid_fluid,n_part,a_type,ff_list, range_2, r0,inv_boundary, boundary, epsil, sigma_2, e_shift,sig,mass,friction,v, inv_range_2, r_cut_dpd_2)
+!!!!$OMP PARALLEL DEFAULT(PRIVATE) SHARED(r_2_min,force,v_fluid_fluid,n_part,a_type,ff_list, range_2, r0,inv_boundary, boundary, epsil, sigma_2, e_shift,sig,mass,friction,v, inv_range_2, r_cut_dpd_2)
 
 #   ifdef _OPENMP
     ith=omp_get_thread_num()
 #   endif
 
 
-!$OMP DO SCHEDULE(STATIC,10) REDUCTION(+:force,v_fluid_fluid)     
+!!!!!$OMP DO SCHEDULE(STATIC,10) REDUCTION(+:force,v_fluid_fluid)     
     do i_part = 1,n_part  !n_mon_tot= brushes + droplet/melt
           i_dummy = ff_list(0,i_part)
 
 #elif BIN_TYPE == 2  /* cell_list.f90 */
-!$OMP PARALLEL DEFAULT(PRIVATE) SHARED(r_2_min,force,v_brush_brush,v_brush_sol,n_part,a_type,l_cell,n_cells_tot,n_nei_cells,
-!n_nei_cells_tot, part_in_cell,lpart_in_cell ,n_cells,r_nei,l_nei,cell_neigh_ls_tot , range_2, r0,inv_boundary, boundary, epsil, sigma_2, e_shift,sig,mass,friction,v, inv_range_2, r_cut_dpd_2)
+!!!!$OMP PARALLEL DEFAULT(PRIVATE) SHARED(r_2_min, force, v_brush_brush, v_brush_sol, part_init_d, a_type,  n_nei_cells, n_nei_cells_tot, part_in_cell, lpart_in_cell, r_nei, cell_of_part, l_nei, cell_neigh_ls_tot, range_2, r0, inv_boundary, boundary, epsil, sigma_2, e_shift, mass, friction, v, inv_range_2, r_cut_dpd_2)
 #   ifdef _OPENMP
     ith=omp_get_thread_num()
 #   endif
 
-!$OMP DO SCHEDULE(STATIC,10) REDUCTION(+:force,v_brush_sol,v_brush_brush)
+!!!!!$OMP DO SCHEDULE(STATIC,10) REDUCTION(+:force, v_brush_sol, v_brush_brush)
     do i_part = 1, part_init_d ! loop over all monomers in brush
         i_cell = cell_of_part(i_part) ! get the cell of the particle i_part    
 
@@ -634,21 +633,21 @@ stop
 
 #   if THERMOSTAT == 1 /* Langevin */
 ! COMMENT to check NVE ensemble          
-! call lgv_forces(force,sig)
+ call lgv_forces(force,sig)
 #   endif /* Langevin */
 
 #if BIN_TYPE == 0 || BIN_TYPE == 1
 end do ! loop over particles
 
-!$OMP END DO 
-!$OMP END PARALLEL 
+!!!!$OMP END DO 
+!!!!$OMP END PARALLEL 
 !END PARALLEL ZONE
 
 #elif BIN_TYPE == 2
 
 end do    ! loop over i_part particles belonging to brush 
-!$OMP END DO 
-!$OMP END PARALLEL 
+!!!!$OMP END DO 
+!!!!$OMP END PARALLEL 
 !END PARALLEL ZONE
 
 
