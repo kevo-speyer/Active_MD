@@ -19,7 +19,7 @@ flags = -fpp # -vec-report0    # -fpe0: stops prog after first fp exception
 flags+=  -O3 -ip #-i-static   -align all  -axSSSE3  # -axSSE4.1   # optimization
 #for old versions of ifort, the flag for openmp is:
 #flags+=  -openmp
-#flags+=  -qopenmp # multi-platform shared-memory parallel programming
+flags+=  -qopenmp # multi-platform shared-memory parallel programming
 #flags+=  -warn unused
 #flags+=  -g -check bounds -traceback
 #flags+= -pg # profiling

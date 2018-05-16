@@ -65,21 +65,42 @@ stop
           i_dummy = ff_list(0,i_part)
 
 #elif BIN_TYPE == 2  /* cell_list.f90 */
-!!!!$OMP PARALLEL DEFAULT(PRIVATE) SHARED(r_2_min, force, v_brush_brush, v_brush_sol, part_init_d, a_type,  n_nei_cells, n_nei_cells_tot, part_in_cell, lpart_in_cell, r_nei, cell_of_part, l_nei, cell_neigh_ls_tot, range_2, r0, inv_boundary, boundary, epsil, sigma_2, e_shift, mass, friction, v, inv_range_2, r_cut_dpd_2)
+
+!DEBUG
+!print*," 10 goes"
+!DEBUG
+
+!$OMP PARALLEL DEFAULT(PRIVATE) SHARED(r_2_min, force, v_brush_brush, v_brush_sol, part_init_d, a_type,  n_nei_cells, n_nei_cells_tot, part_in_cell, lpart_in_cell, r_nei, cell_of_part, l_nei, cell_neigh_ls, cell_neigh_ls_tot, range_2, r0, inv_boundary, boundary, epsil, sigma_2, e_shift, mass, friction, v, inv_range_2, r_cut_dpd_2, sig)
+
+!DEBUG
+!print*," 11 goes"
+!DEBUG
+
 #   ifdef _OPENMP
     ith=omp_get_thread_num()
 #   endif
+!DEBUG
+!print*," 12 goes, ith = ", ith
+!DEBUG
 
-!!!!!$OMP DO SCHEDULE(STATIC,10) REDUCTION(+:force, v_brush_sol, v_brush_brush)
+!$OMP DO SCHEDULE(STATIC,10) REDUCTION(+:force, v_brush_sol, v_brush_brush)
     do i_part = 1, part_init_d ! loop over all monomers in brush
         i_cell = cell_of_part(i_part) ! get the cell of the particle i_part    
 
 #endif /*BIN_TYPE*/
+!DEBUG
+!print*," 15 goes, ith = ", ith
+!DEBUG
 
           i_type = a_type(i_part) 
 
           f_ipart(:) =0.
           q_part=i_part !dummy variable for OpenMP paralelization
+
+!DEBUG
+!print*," 20 goes, ith = ", ith
+!DEBUG
+
 
         !!!!!!!!!!!!!!!! FIRST CALCULATE ALL BRUSH SOLVENT INTERACTIONS !!!!!!!!!!!!!!!!!!!!!!
 
@@ -94,7 +115,10 @@ stop
             j_type = 3 ! a_type(j_part)! already know its a solvent particle
 
 
-                    
+!DEBUG
+!print*," 50 goes, ith = ", ith
+!DEBUG
+          
                           
                     r_cut2 = range_2(i_type,j_type)
 
@@ -116,17 +140,24 @@ stop
                     r_2 =  delta_r(1)*delta_r(1)  + delta_r(2)*delta_r(2) +  delta_r(3)*delta_r(3)
 
               !-----  check whether interaction takes place
+!DEBUG
+!print*," 80 goes, ith = ", ith
+!DEBUG
 
                     if( r_2 .lt. r_cut2 ) then
 #           ifdef FORCE_SWITCH_ON 
                     r_2 = max(r_2,r_2_min) 
 #           endif                 
 
+!DEBUG
+!print*," 100 goes, ith = ", ith
+!DEBUG
+
                     inv_r_2 = 1./r_2
                     inv_sqrt_r_2 = sqrt(1./r_2)
                     l_eps = epsil(i_type,j_type)
 
-                    !!!!!!!!!!!!!!  HERE SHOULD BE THE OPTION TO DO SOFT POTENTIAL FOR SOLVENT-BRUSH INTERACTIONS!!!!!!!!!!!!!                  
+                    !!  HERE SHOULD BE THE OPTION TO DO SOFT POTENTIAL FOR SOLVENT-BRUSH INTERACTIONS  !!!                  
 
                     !!!!!!!!!!!!!!  IF ELSE LENNARD-JONNES FOR SOLVENT BRUSH!!!!!!!!!!!
                     r_61= sigma_2(i_type,j_type)*inv_r_2 
@@ -143,6 +174,10 @@ stop
                     force_loc(2) = r_dummy*delta_r(2)
                     force_loc(3) = r_dummy*delta_r(3)
                     ! HPC
+
+!DEBUG
+!print*," 200 goes, ith = ", ith
+!DEBUG
 
 #       if BIN_TYPE == 0 ||  BIN_TYPE == 2/* binning.f90 */
                     f_ipart(1) = f_ipart(1) -  force_loc(1)
@@ -165,6 +200,10 @@ stop
 !WRONG?  end if
     
 #   endif
+
+!DEBUG
+!print*," 250 goes, ith = ", ith
+!DEBUG
 
 !
 !  --- DPD calculation if DPD has not its own cut-off  
@@ -200,6 +239,9 @@ stop
 #       endif /* not DPD_CUT_OFF */
 #endif /*THERMOSTAT = 0 */
 
+!DEBUG
+!print*," 300 goes, ith = ", ith
+!DEBUG
 
 #       if SYSTEM == 2  || SYSTEM  == 3 /* charged systems */
 
@@ -214,6 +256,10 @@ stop
 !
 ! DPD has its own cutoff radius 
 !
+
+!DEBUG
+!print*," 350 goes, ith = ", ith
+!DEBUG
 
 #ifdef DPD_CUT_OFF
 #       if THERMOSTAT == 0
@@ -261,6 +307,10 @@ stop
 #       endif /* THEMOSTAT = 0 */
 #endif /* DPD_CUT_OFF */
 
+!DEBUG
+!print*," 400 goes, ith = ", ith
+!DEBUG
+
 #if BIN_TYPE == 0 || BIN_TYPE == 1
           end do ! loop over particles neighbors (j_part)
 #elif BIN_TYPE == 2
@@ -270,10 +320,18 @@ stop
                 end do ! loop over solvent particles in j_cell
             end do ! loop over all neighboring j_cell cells of i_cell , and also i_cell
 
+!DEBUG
+!print*," 500 goes, ith = ", ith
+!DEBUG
 
 !!!!!!!!!!!! CALCULATE BRUSH-BRUSH INTERACTIONS IN DIFFERENT CELLS !!!!!!!!!!!!!!!!!!!!
             do j_dummy = 1, n_nei_cells ! loop over half of the neighbor cells, to count interaction once
                 j_cell = cell_neigh_ls(i_cell,j_dummy) ! j_cell = neighbour cell
+
+!DEBUG
+!print*," 510 goes, ith = ", ith
+!DEBUG
+
 
                 j_part = part_in_cell(j_cell)
   
@@ -639,15 +697,15 @@ stop
 #if BIN_TYPE == 0 || BIN_TYPE == 1
 end do ! loop over particles
 
-!!!!$OMP END DO 
-!!!!$OMP END PARALLEL 
+!!$OMP END DO 
+!!$OMP END PARALLEL 
 !END PARALLEL ZONE
 
 #elif BIN_TYPE == 2
 
 end do    ! loop over i_part particles belonging to brush 
-!!!!$OMP END DO 
-!!!!$OMP END PARALLEL 
+!$OMP END DO 
+!$OMP END PARALLEL 
 !END PARALLEL ZONE
 
 
