@@ -29,13 +29,6 @@ subroutine messages
 #   if SYMMETRY == 0 
         print '(/a)', "  *  SIMULATING: grafted chains, non grafted chains and 3 or 4 type of particles"
         print '(a/)', "  *  Channel-like geometry of the simulation box"
-#   else
-# ifdef ACTIVE_BRUSH
-        print '(/a)', "  *  SIMULATING: active, polymers are driven by external forces"
-# endif
-# ifdef SPRING_ARRAY
-        print '(/a)', "  *  SIMULATING: springs, brush polymers are joined by springs. Only works for ordered brush "
-#endif
 #   endif
 
 #elif SYSTEM == 1 
@@ -242,6 +235,19 @@ print '(/a/)',"  * Doing simulation with profiles calculation (slower) "
 
 #endif
 
+#if BRUSH_SOL_INT == 2
+    print*,"  *  Brush Monomers - Solvent interaction is via Soft-Potential"
+    print*,"  - Strength of interaction is a = epsil(2,3)"
+#elif BRUSH_SOL_INT == 1    
+    print*,"  *  Brush Monomers - Solvent interaction is via Lennard-Jones Pot"
+#endif
+
+# ifdef ACTIVE_BRUSH
+        print '(/a)', "  *  SIMULATING: active, polymers are driven by external forces"
+# endif
+# ifdef SPRING_ARRAY
+        print '(/a)', "  *  SIMULATING: springs, brush polymers are joined by springs. Only works for ordered brush "
+#endif
 
 
 end subroutine messages

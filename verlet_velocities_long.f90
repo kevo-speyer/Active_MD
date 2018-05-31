@@ -183,8 +183,14 @@ case(2)
 #endif        
 
 #if SYSTEM == 0 || SYSTEM == 1 || SYSTEM == 4
-        write(61,'(i7,3g17.5)') i_time,v_fluid_fluid,v_intra_molec,v_fluid_wall
         write(60,'(i11,3g17.5)') i_time,e_total*inv_N,v_total*inv_N, t_total*inv_N
+
+#   ifndef RESPA
+        write(61,'(i7,3g17.5)') i_time,v_fluid_fluid,v_intra_molec,v_fluid_wall
+
+#   else
+        write(61,'(i7,3g17.5)') i_time, v_wall_wall, v_fluid_wall, v_brush_brush, v_brush_sol, v_intra_molec, v_sol_sol, v_bend
+#   endif        
 #elif SYSTEM == 2  || SYSTEM == 3
         v_total = v_total + v_coul
         write(60,'(i11,4g17.5)') i_time,e_total*inv_N,v_total*inv_N, t_total*inv_N,v_coul*inv_N

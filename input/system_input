@@ -1,0 +1,13 @@
+# This file sets the system charcteristtics for Mfa_prog
+# It is in free format but the number of files must be held fixed
+4
+#Grafted polymers: n_mon n_chain wall:[number of cells in x] [number of cells in y] 
+ 10  1  10  10
+# The drop or melt:  [n_mon_d] [n_chain_d] [drop_cell_x] [drop_cell_y] [z_skin]
+1  2400  10  10   4 2 11 12
+# non additive sigmas [sig23] [sig24] [sig34]     WARN: there is almost not part4 in bin_brush
+ 1.0   1.0   1.0
+# Parameters A and s_w for wall-fluid interaction with: V=A (s_w/z) -(s_w/z)^6   
+    -3.2         1.0
+# Fx    Fy    Fz 
+0.0   0.0    0.0 

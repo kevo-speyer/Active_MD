@@ -70,7 +70,7 @@ stop
 !print*," 10 goes"
 !DEBUG
 
-!$OMP PARALLEL DEFAULT(PRIVATE) SHARED(r_2_min, force, v_brush_brush, v_brush_sol, part_init_d, a_type,  n_nei_cells, n_nei_cells_tot, part_in_cell, lpart_in_cell, r_nei, cell_of_part, l_nei, cell_neigh_ls, cell_neigh_ls_tot, range_2, r0, inv_boundary, boundary, epsil, sigma_2, e_shift, mass, friction, v, inv_range_2, r_cut_dpd_2, sig)
+!$OMP PARALLEL DEFAULT(PRIVATE) SHARED(r_2_min, force, v_brush_brush, v_brush_sol, part_init_d, a_type,  n_nei_cells, n_nei_cells_tot, part_in_cell, lpart_in_cell, r_nei, cell_of_part, l_nei, cell_neigh_ls, cell_neigh_ls_tot, range_2, r0, inv_boundary, boundary, epsil, sigma_2, e_shift, mass, friction, v, inv_range_2, r_cut_dpd_2, sig, r_cut_sb, inv_r_cut_sb)
 
 !DEBUG
 !print*," 11 goes"
@@ -114,11 +114,7 @@ stop
                     if( a_type(j_part) .ne. 3 ) exit ! if particle is not solvent, go to next cell                    
             j_type = 3 ! a_type(j_part)! already know its a solvent particle
 
-
-!DEBUG
-!print*," 50 goes, ith = ", ith
-!DEBUG
-          
+        
                           
                     r_cut2 = range_2(i_type,j_type)
 
@@ -140,25 +136,22 @@ stop
                     r_2 =  delta_r(1)*delta_r(1)  + delta_r(2)*delta_r(2) +  delta_r(3)*delta_r(3)
 
               !-----  check whether interaction takes place
-!DEBUG
-!print*," 80 goes, ith = ", ith
-!DEBUG
-
                     if( r_2 .lt. r_cut2 ) then
 #           ifdef FORCE_SWITCH_ON 
                     r_2 = max(r_2,r_2_min) 
 #           endif                 
-
-!DEBUG
-!print*," 100 goes, ith = ", ith
-!DEBUG
-
                     inv_r_2 = 1./r_2
                     inv_sqrt_r_2 = sqrt(1./r_2)
                     l_eps = epsil(i_type,j_type)
 
                     !!  HERE SHOULD BE THE OPTION TO DO SOFT POTENTIAL FOR SOLVENT-BRUSH INTERACTIONS  !!!                  
-
+#if BRUSH_SOL_INT == 2
+                    r_dummy =  (inv_sqrt_r_2 - inv_r_cut_sb )
+                    v_brush_sol = v_brush_sol + 0.5 * l_eps * r_cut_sb * r_2 *r_dummy**2 
+                    r_dummy = - l_eps * r_dummy 
+                ! ELSE IF SOL SOL INTERACTIONS ARE LJ: 
+#elif BRUSH_SOL_INT == 1
+ 
                     !!!!!!!!!!!!!!  IF ELSE LENNARD-JONNES FOR SOLVENT BRUSH!!!!!!!!!!!
                     r_61= sigma_2(i_type,j_type)*inv_r_2 
                     r_6 = r_61*r_61*r_61
@@ -170,6 +163,8 @@ stop
 
                     r_dummy = l_eps*(-12*r_12+6*r_6)*inv_r_2
 
+#endif /* BRUSH_SOL_INT*/
+ 
                     force_loc(1) = r_dummy*delta_r(1)
                     force_loc(2) = r_dummy*delta_r(2)
                     force_loc(3) = r_dummy*delta_r(3)

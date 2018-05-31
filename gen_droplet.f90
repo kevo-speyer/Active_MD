@@ -206,7 +206,8 @@ select case (mode)
 
     case(4)  ! Droplet generation. Taken from mfa_drop_force
 #if SYSTEM == 1
-
+print*,"  * Generating droplet "
+ 
 ! We put the droplet in the middle of simulation box.
 
 x_droplet_shift = boundary(1)/2. - boundary_d(1)/2.
@@ -240,20 +241,20 @@ end if
        call r250(mz,random,n_part,n_dim,kptr)
 
 !       r0(1:2,i_part) = random(1:2)*boundary_d(1:2) 
-       r0(1,i_part) = uni()*boundary_d(1)
-       r0(2,i_part) = uni()*boundary_d(2)     
+       r0(1,i_part) = uni()* boundary(1) !boundary_d(1)
+       r0(2,i_part) = uni()* boundary(2) !boundary_d(2)     
        r0(3,i_part) = z_min_d + uni()*( boundary_d(3) - z_min_d )
 !DEBUG
  
-if((r0(1,i_part).gt.boundary_d(1)).or.(r0(1,i_part).lt.0.)) then
+if((r0(1,i_part).gt.boundary(1)).or.(r0(1,i_part).lt.0.)) then
     print*,"lio en x",i_part 
 end if
 
-if((r0(2,i_part).gt.boundary_d(2)).or.(r0(2,i_part).lt.0.)) then
+if((r0(2,i_part).gt.boundary(2)).or.(r0(2,i_part).lt.0.)) then
     print*,"lio en y",i_part
 end if
 
-if((r0(3,i_part).gt.boundary_d(3)).or.(r0(3,i_part).lt.z_min_d)) then
+if((r0(3,i_part).gt.boundary(3)).or.(r0(3,i_part).lt.z_min_d)) then
     print*,"lio en z",i_part
 end if
 

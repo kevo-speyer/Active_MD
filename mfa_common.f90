@@ -604,6 +604,10 @@ real (kind=8) :: press_tensor(3,3),press_tensor_mean(3,3)
     
 #endif
 
+#if BRUSH_SOL_INT == 2
+    real(kind=8) :: r_cut_sb, inv_r_cut_sb
+#endif
+
 !!OMP VARIABLES 
 #ifdef _OPENMP
 integer, dimension(:), allocatable :: par_jsrseed

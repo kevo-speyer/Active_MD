@@ -5,7 +5,7 @@
       integer, intent(in) :: mode
       integer :: err_ov, i_ov, j_chain,ini_chain,i_col,i_row, n_col,n_row!, j_part!Add by Kevo to avoid overlap between grafting points
       real :: dis_ov_2, min_dis_2, a_br,a_br_2!sigma(1,1)**2 !Add by Kevo to avoid overlap between grafting points
-      real (kind=8) :: fi=0., alpha_ini=.52 !0.78
+      real (kind=8) :: fi=0., alpha_ini=.8 !0.78
       real (kind=8) :: xi_ini=0.2, xi_end=2.9, rangle
       !  11º -> 0.2
       ! 166º -> 2.9
@@ -287,7 +287,7 @@ case(2)  ! ------ Brush ONLY in bottom wall: DROPLET
 
  case(4)  ! ------ Brush ONLY in bottom wall: DROPLET
 !1984
-    do i_chain = 1,n_chain  !loop over all the chains
+   do i_chain = 1,n_chain  !loop over all the chains
         i_part = 1 + (i_chain-1)*n_mon
         call r250(mz,random,n_part,n_dim,kptr)
         err_ov=1
@@ -617,6 +617,7 @@ do j_chain = 0, 1 !0 is top wall. 1 is for bottom wall
 end do ! end j_chain bottom or top wall
 
 case(8)  ! ------ Ordered Brush ONLY in bottom wall: DROPLET
+    print*, "  * Generating Ordered Brush for active with Droplet"
     a_br = sqrt( boundary(1)*boundary(2)/n_chain ) !lattice parameter
     a_br_2 = a_br / 2
 
@@ -679,6 +680,25 @@ case(8)  ! ------ Ordered Brush ONLY in bottom wall: DROPLET
                        end do
         end do
     end do    
-!print*,"salio" !DEBUG
+
+    
+    
+    !DEBUG
+    !print*,"DEBUG:"
+    !do i_part = 1, n_mon*n_chain
+    !    do i_dim = 1, n_dim
+    !        if(r0(i_dim,i_part).ge.boundary(i_dim)) then
+    !            r0(i_dim,i_part) = r0(i_dim,i_part) - boundary(i_dim)
+    !        else if(r0(i_dim,i_part).le.0.) then
+    !            r0(i_dim,i_part) = r0(i_dim,i_part) + boundary(i_dim)
+    !        end if
+    !    end do
+    !    print*,i_part, r0(1,i_part)    
+    !end do
+    !/DEBUG
+    
+    
+    
+    !print*,"salio" !DEBUG
  end select
 end subroutine gen_brush

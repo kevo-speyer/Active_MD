@@ -910,7 +910,23 @@ write(*,*) "  *  Parallel OpenMP version. N_threads: ", numth
       sig_long = sqrt(2.*temp*friction(1)/dt_long)
       r_cut_ss = sqrt( range_2(3,3) )
       inv_r_cut_ss = 1. / r_cut_ss
+
+     print*,"  - r_cut_ss = ",r_cut_ss
+     print*,"  - inv_r_cut_ss = ",inv_r_cut_ss
+
 #endif
+
+#if BRUSH_SOL_INT == 2
+    r_cut_sb = sqrt( range_2(2,3) )  ! or range_2(3,2) ? 
+    inv_r_cut_sb = 1. / r_cut_sb 
+
+    print*,"  - r_cut_sb = ",r_cut_sb
+    print*,"  - inv_r_cut_sb = ",inv_r_cut_sb
+
+
+
+#endif
+
 ! NOTE: 1/sqrt(dt): is related to the random force in the algorhytm implemmentation 
 
 ! DPD constant weight functions. Here to speed up dpd_forces_ll
@@ -946,13 +962,14 @@ write(*,*) "  *  Parallel OpenMP version. N_threads: ", numth
 
 ! Params for observation
 
+#if SYSTEM != 1 
       if(mod(n_chain,2) == 0 ) then 
             n_chain_2 = n_chain/2
       else
         print '(/a/)', "WARNING: n_chain is not dividible by 2 ! "
         stop
       end if
-
+#endif
 
   100 format(a)
   101 format(e14.6)

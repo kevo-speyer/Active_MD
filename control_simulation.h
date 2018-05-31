@@ -6,7 +6,7 @@
  * 2= charged system.No brush, 
  * 3= charged channel+brush  */
 
-#define SYSTEM 0 
+#define SYSTEM 1 
 
 
 /*BRUSH TYPE: sets how the grafted beads from the polymer brush will be chosen
@@ -35,7 +35,7 @@
  * 3: top: hard wall, bottom: 9-3 4=top and bottom, hard walls   (droplets)
  * 4: hard walls in top and bottom walls */
 
-#define WALL 2
+#define WALL 3
 
 /*      Potential cut-offs for LJ
  * 3= non-additive+poor 
@@ -58,7 +58,7 @@
 
 /* Active brush polymers*/
 
-#undef ACTIVE_BRUSH
+#define ACTIVE_BRUSH
 
 /* Brushes are coupled by springs */
 
@@ -120,3 +120,10 @@
 #define SOL_SOL_INT 2 /* Control the interactions between solvent-solvent. WARNING: IT ONLY WORKS WITH RESPA DEFINED(a_type=3) */
                       /* 1 is Lennard-Jones Potential*/
                       /* 2 is Soft Potentail (typically used in DPD)*/
+
+#define BRUSH_SOL_INT 2 /* Switch between Lennard-Jones and Soft Potential for brush monomer and solvent interaction */                
+                        /* 1  is Lennard-Jones Potential*/
+                        /* 2 is Soft Potentail (typically used in DPD)*/
+
+#define VEL_INIT 1  /* 1 Set initial velocities according to Maxwell-Boltzmann distro*/
+                    /* 0 Set initial velocities to 0 */

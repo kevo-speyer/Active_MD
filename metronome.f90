@@ -19,7 +19,7 @@ integer, SAVE :: count_local
 select case (mode_metro)
 
 case(0)  ! Init  variables 
-print*,""
+!print*,""
 print*," * Simulation with active polymer"
 print*,""
 ALLOCATE( cos_mem(n_chain) )
@@ -32,7 +32,7 @@ count_local = 1
 cos_th=0.
 cos_lim1 = cos(beta1*pi/180.)
 cos_lim2 = cos(beta2*pi/180.)
-print*, cos_lim2, cos_lim1
+print*,"cos_lim2, cos_lim1", cos_lim2, cos_lim1
 sin_lim = sin(beta1*pi/180.)
 
 if (beta1.gt.beta2) then
@@ -201,12 +201,19 @@ do l = 1, n_chain
     !!! is needed.
     !!! 
     r_2rel = r0(:, n_mon+(l-1)*n_mon)- r0(:, 1+(l-1)*n_mon)  ! r_2rel = R_end-to-end
-    cos_th = sqrt( ( r_2rel(1)**2 + r_2rel(2)**2 ) / DOT_PRODUCT(r_2rel,r_2rel) )
+    cos_th = r_2rel(1) / sqrt( dot_product( r_2rel,r_2rel ) )
+    !cos_th = sqrt( ( r_2rel(1)**2 + r_2rel(2)**2 ) / DOT_PRODUCT(r_2rel,r_2rel) )
     !This is basicaly looking at the inbclination of Rend coordinate
     !The line above should be modified to implement a 3D activation model
 
     !k_old = k0(1+(l-1)*(n_mon-1))  ! storing old k
+!DEBUG
+!print*,"cos_th",cos_th
+!print*,"cos_mem(l)",cos_mem(l)
+!print*,"kicks if:",cos_lim1,">",cos_th,">",cos_lim2
+!print*,"and",cos_lim2,">",cos_mem(l)
 
+!/DEBUG
     if( cos_th.gt.cos_lim1 ) then  ! the "more horizontal" (1) section
         !print *, 'is in (1)'
         k0(l) = k_bend
@@ -222,7 +229,9 @@ do l = 1, n_chain
     else ! the middle section
         ! print *, 'middle and'
         if( cos_mem(l).le.cos_lim2 ) then ! if it came from 2
-
+            !DEBUG
+            !print*,"chain ",l,"is getting kicked"
+            !/DEBUG
             kick(l) = kick(l) + 15
             k0(l) = k_act !-.005*k_bend  ! soft k
 
@@ -237,29 +246,30 @@ do l = 1, n_chain
 end do
 
 
-
+!print*,""
+!print*,i_time
 
 
 
 end select
 
-count_local = count_local + 1
-
-if(count_local .eq.10) then
-    write(79,'(I12.4)', advance='no') i_time
-    write(81,'(I12.4)', advance='no') i_time
-    do l=1, n_chain
-        write(79,'(ES12.4)', advance='no') kick(l)
-        write(81,'(ES12.4)', advance='no') curv(l)
-    end do
-    write(55,*) i_time, cos_th
-    write(79,*) 
-    write(81,*) 
-
-    count_local = 1
-    kick = 0
-    curv = 0.
-end if
+!count_local = count_local + 1
+!
+!if(count_local .eq.10) then
+!    write(79,'(I12.4)', advance='no') i_time
+!    write(81,'(I12.4)', advance='no') i_time
+!    do l=1, n_chain
+!        write(79,'(ES12.4)', advance='no') kick(l)
+!        write(81,'(ES12.4)', advance='no') curv(l)
+!    end do
+!    write(55,*) i_time, cos_th
+!    write(79,*) 
+!    write(81,*) 
+!
+!    count_local = 1
+!    kick = 0
+!    curv = 0.
+!end if
 
 CONTAINS
 

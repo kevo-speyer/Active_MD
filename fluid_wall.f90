@@ -99,6 +99,14 @@ subroutine fluid_wall(inter_type)
               ! HPC
               force(3,i_part) = force(3,i_part) +   9.*abs(a_wall(i_type))*(sigma_wall(i_type))**9*(inv_z)**10 
               force(3,i_part) = force(3,i_part)   - 3.*a_wall(i_type)*(sigma_wall(i_type))**3*(inv_z)**4                              
+              !DEBUG
+                !print*,"a_wall(i_type)",a_wall(i_type)
+                !print*,"sigma_wall(i_type)",sigma_wall(i_type)
+                !print*,"inv_z",inv_z
+                !print*,"r0(:,i_part)",r0(:,i_part)
+                !print*,"a_w",a_w
+                !print*,"v_fluid_wall",v_fluid_wall
+                !/DEBUG
 
               ! ***  Top wall interaction. Warn: the force sign must be in opposite direction    
 
@@ -119,8 +127,21 @@ subroutine fluid_wall(inter_type)
 
               force(3,i_part) = force(3,i_part)    - 9.*abs(a_wall(i_type))*(sigma_wall(i_type))**9*(inv_z)**10  
               force(3,i_part) = force(3,i_part)    + 3*a_wall(i_type)*(sigma_wall(i_type))**3*(inv_z)**4
+            
+              !print*,"i_part, v_fluid_wall",i_part, v_fluid_wall
+  
+              !DEBUG
+                !print*,"a_wall(i_type)",a_wall(i_type)
+                !print*,"sigma_wall(i_type)",sigma_wall(i_type)
+                !print*,"inv_z",inv_z
+                !print*,"r0(:,i_part)",r0(:,i_part)
+                !print*,"a_w",a_w
+                !print*,"v_fluid_wall",v_fluid_wall
+                !/DEBUG
 
-          end do
+            end do
+
+     
 
 #endif /* WALL = 2*/
 
