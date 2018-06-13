@@ -60,6 +60,8 @@
 
 #define ACTIVE_BRUSH
 
+#define METRO 1 /* 0 is 2D activation model. Angle meassured in x dimension*/
+                /* 1 is 3D act. model. Activation angle is meassured in the plane (isotropic) */
 /* Brushes are coupled by springs */
 
 #undef SPRING_ARRAY

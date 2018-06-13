@@ -316,9 +316,9 @@ if(r0(3,i_part)>= z_space_wall-z_skin) r0(3,i_part) = r0(3,i_part) -  z_skin
 ! Shift x of the droplet to the middle of the sample 
 !
 
-do i_part=part_init_d +1,n_mon_tot
-    r0(1,i_part) = r0(1,i_part) + x_droplet_shift
-end do
+!do i_part=part_init_d +1,n_mon_tot
+!    r0(1,i_part) = r0(1,i_part) + x_droplet_shift
+!end do
 
 !DEBUG
 !print*,r0

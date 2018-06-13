@@ -16,7 +16,9 @@ subroutine calc_solv_solv_force()
 ! cache blocking 
      integer :: ii_part,ii_neigh,i,j
       logical, parameter :: debug=.false.
-
+!DEBUG
+!print*,"Entro a calc_solv_solv_force"
+!/DEBUG
 !For solvent_solvent interactions only, so l_eps is fixed 
       l_eps = epsil(3,3)
       r_cut2 = range_2(3,3)
@@ -97,19 +99,22 @@ do i_part = part_init_d + 1, n_mon_tot ! loop over melt
                 j_cell = cell_neigh_ls(i_cell,j_dummy) ! j_cell = neighbour cell
         
                 j_part = lpart_in_cell(j_cell)
-
+                !DEBUG
+                !print*,"i_cell,j_cell",i_cell,j_cell
+                !/DEBUG
                 do while(j_part .ne. 0) ! loop over neighbour particles in j_cell
     
                 !DEBUG
                 !print*,"i_part,j_part",i_part,j_part
-                !DEBUG
 
+                !DEBUG
+                if(i_part .eq. j_part) print*,"ERROR: i_part,j_part",i_part,j_part
                 j_type = a_type(j_part)
                      if( j_type .ne. 3 ) exit ! If particle not solvent, go to next cell. Cell linked list is done,
                     ! such that the last  particles in a cell are always solvent. If this particle is not solvent,
                    ! there is no more solvent in this cell. Go to next cell                                 
 # endif
-            
+             if (j_part .le. part_init_d ) print*,"ERROR j_part in brush",j_part           
                   
               ! HPC
 
@@ -128,6 +133,13 @@ do i_part = part_init_d + 1, n_mon_tot ! loop over melt
 
               r_2 =  delta_r(1)*delta_r(1)  + delta_r(2)*delta_r(2) +  delta_r(3)*delta_r(3)
 
+              if(r_2 .le. 0.000001) then
+                  r_2=0.01
+                  print*,"Error, distance between particles is 0"
+                  print*,"Particles",i_part,j_part
+                  print*,r0(:,i_part)
+                  print*,r0(:,j_part)
+              end if
               !-----  check whether interaction takes place
 
               if( r_2 .lt. r_cut2 ) then
@@ -162,8 +174,12 @@ do i_part = part_init_d + 1, n_mon_tot ! loop over melt
                   ! HPC
 
 !DEBUG
-!print*,"force",i_part,j_part
-!print*,"force",force_loc(:)
+if ( dot_product(force_loc,force_loc) .gt. 10.) then
+    print*,"Problem in conservative force in calc_solv_solv"
+    print*,"i_part,j_part",i_part,j_part
+    print*,"r0(:,i_part), r0(:,j_part)",r0(:,i_part), r0(:,j_part)
+    print*,"force",force_loc(:)
+end if
 !DEBUG
 
 #       if BIN_TYPE == 0 ||  BIN_TYPE == 2/* binning.f90 */
@@ -241,9 +257,10 @@ do i_part = part_init_d + 1, n_mon_tot ! loop over melt
 
               if(r_2 < r_cut_dpd_2 ) then 
                   
-                  
+!DEBUG
+!print*,"Entro a dpd_forces"
                   call dpd_forces(inv_sqrt_r_2,force_long, sig_long)
-
+!print*,"SAlgo dpd_forces"
               end if
 
 #       endif /* THEMOSTAT = 0 */
@@ -313,11 +330,16 @@ do i_part = part_init_d + 1, n_mon_tot ! loop over melt
                   force_loc(1) = r_dummy*delta_r(1)
                   force_loc(2) = r_dummy*delta_r(2)
                   force_loc(3) = r_dummy*delta_r(3)
-                
+
+                  !DEBUG
+if ( dot_product(force_loc,force_loc) .gt. 10.) then
+    print*,"Problem in conservative force in calc_solv_solv"
+    print*,"i_part,j_part",i_part,j_part
+    print*,"r0(:,i_part), r0(:,j_part)",r0(:,i_part), r0(:,j_part)
+    print*,"force",force_loc(:)
+end if
 !DEBUG
-!print*,"force",i_part,j_part 
-!print*,"force",force_loc(:)
-!DEBUG
+
 
                   f_ipart(1) = f_ipart(1) -  force_loc(1)
                   f_ipart(2) = f_ipart(2) -  force_loc(2)
@@ -392,8 +414,10 @@ do i_part = part_init_d + 1, n_mon_tot ! loop over melt
 
               if(r_2 < r_cut_dpd_2 ) then 
                   
+!print*,"Entro a dpd_forces"
                   
                   call dpd_forces(inv_sqrt_r_2,force_long, sig_long)
+!print*,"Salgo a dpd_forces"
 
               end if
 
@@ -479,5 +503,10 @@ print *, "[fluid_fluid]V=",v_sol_sol
 !write(88,'(3i,3f15.4)') i_time, i_part,a_type(i_part),force(:,i_part)
 !end do
 end if
-          !
+
+!DEBUG
+!print*,"Salgo a calc_solv_solv_force"
+!print*,""
+!!/DEBUG         !
+
 end subroutine calc_solv_solv_force

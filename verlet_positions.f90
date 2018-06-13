@@ -193,8 +193,16 @@ use commons
 #endif
                         end if
                     end do
-
- !DEBUG
+!DEBUG
+#if SYMMETRY == 0 && WALL == 3 
+if(r0(3,i_part).gt.boundary(3)) then
+    r0(3,i_part) = boundary(3) - z_head
+    v(3,i_part) = - abs(v(3,i_part))
+else if(r0(3,i_part).le.0) then
+    r0(3,i_part) = z_head
+    v(3,i_part) =  abs(v(3,i_part))
+end if
+#endif
 !print*,"r0 after",r0(:,i_part)
 !print*,"v after",v(:,i_part)
 !print*,"a after",a(:,i_part)
@@ -208,7 +216,7 @@ use commons
 if ( a_type(i_part) .eq. 3 ) then ! if solvent, then put particle last in linked list
     call update_part_cell(r0(:,i_part), i_part, n_dim, n_cells, n_cells_tot,inv_l_cell, n_mon_tot, part_in_cell, lpart_in_cell,r_nei, l_nei, 2, cell_of_part)
 else ! if particle is not in the solvent, then put particle first
-    call update_part_cell(r0(:,i_part), i_part, n_dim, n_cells, n_cells_tot,inv_l_cell,  n_mon_tot, part_in_cell, lpart_in_cell ,r_nei, l_nei, 1, cell_of_part)
+    call update_part_cell(r0(:,i_part), i_part, n_dim, n_cells, n_cells_tot,inv_l_cell, n_mon_tot, part_in_cell, lpart_in_cell ,r_nei, l_nei, 1, cell_of_part)
 end if
 #endif 
 

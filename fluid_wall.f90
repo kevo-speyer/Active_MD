@@ -177,8 +177,9 @@ subroutine fluid_wall(inter_type)
               ! 
               !------- Top  Wall interaction 
 
-              if (r0(3,i_part) > (z_space_wall-z_head) .and. v(3,i_part) > 0. ) then
-                  v(3,i_part) = -v(3,i_part)
+              if (r0(3,i_part) > boundary(3)-z_head ) then         
+                  v(3,i_part) = -abs(v(3,i_part) )
+                  r0(3,i_part) = boundary(3)-z_head 
               end if
 
           end do

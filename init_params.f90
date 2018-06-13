@@ -511,6 +511,8 @@ end if
 
 #        if WALL != 1        
             epsil(1,1) = 0.
+            z_head = 1.2*sigma(1,1)
+            print*,"  - z_head = ", z_head
 #       endif             
 
 !---  define cutoffs and shifts in energy

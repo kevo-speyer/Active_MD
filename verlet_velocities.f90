@@ -132,7 +132,7 @@ use commons
 # endif /* symmetry */
 
 #ifndef RESPA
-
+print*,"Respa not defined"
 !NOW THIS IS DONE IN verlet_velocities_long.f90 
 
 !   ---- Measurement of some quantities 

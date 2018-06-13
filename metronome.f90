@@ -201,8 +201,11 @@ do l = 1, n_chain
     !!! is needed.
     !!! 
     r_2rel = r0(:, n_mon+(l-1)*n_mon)- r0(:, 1+(l-1)*n_mon)  ! r_2rel = R_end-to-end
+#if METRO == 0
     cos_th = r_2rel(1) / sqrt( dot_product( r_2rel,r_2rel ) )
-    !cos_th = sqrt( ( r_2rel(1)**2 + r_2rel(2)**2 ) / DOT_PRODUCT(r_2rel,r_2rel) )
+#elif METRO == 1 
+    cos_th = sqrt( ( r_2rel(1)**2 + r_2rel(2)**2 ) / DOT_PRODUCT(r_2rel,r_2rel) )
+#endif
     !This is basicaly looking at the inbclination of Rend coordinate
     !The line above should be modified to implement a 3D activation model
 

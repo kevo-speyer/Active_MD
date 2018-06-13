@@ -169,7 +169,7 @@ case(2)
 
    time_ave_count_2 = time_ave_count_2 + 1
 
-   if(time_ave_count_2.eq.10) then
+   if(time_ave_count_2.eq.10) then  !DEBUG,; ori: 10) then
        time_ave_count_2 = 0
 
 #ifdef SHEARED

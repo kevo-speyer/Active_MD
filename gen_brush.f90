@@ -685,16 +685,16 @@ case(8)  ! ------ Ordered Brush ONLY in bottom wall: DROPLET
     
     !DEBUG
     !print*,"DEBUG:"
-    !do i_part = 1, n_mon*n_chain
-    !    do i_dim = 1, n_dim
-    !        if(r0(i_dim,i_part).ge.boundary(i_dim)) then
-    !            r0(i_dim,i_part) = r0(i_dim,i_part) - boundary(i_dim)
-    !        else if(r0(i_dim,i_part).le.0.) then
-    !            r0(i_dim,i_part) = r0(i_dim,i_part) + boundary(i_dim)
-    !        end if
-    !    end do
-    !    print*,i_part, r0(1,i_part)    
-    !end do
+    do i_part = 1, n_mon*n_chain
+        do i_dim = 1, n_dim
+            if(r0(i_dim,i_part).ge.boundary(i_dim)) then
+                r0(i_dim,i_part) = r0(i_dim,i_part) - boundary(i_dim)
+            else if(r0(i_dim,i_part).le.0.) then
+                r0(i_dim,i_part) = r0(i_dim,i_part) + boundary(i_dim)
+            end if
+        end do
+        !print*,i_part, r0(1,i_part)    
+    end do
     !/DEBUG
     
     

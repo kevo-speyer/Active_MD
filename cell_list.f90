@@ -84,7 +84,8 @@ r_nei(:) = 0
 do i_part = 1, n_part
 
 !! First check that the  particle is in the simulation box
-    call check_bound(r0(:,i_part), n_dim, boundary)
+    !print*,"check_bound for i_part",i_part
+call check_bound(r0(:,i_part), n_dim, boundary)
 
 !print*,"Doing the linked list for particle ",  i_part
     !First get the cell index of the particle. Cell index is between 1 and
@@ -264,6 +265,7 @@ call get_cell(r0_part, n_dim, n_cells, inv_l_cell, new_cell)
 
 if( new_cell .ne. old_cell ) then !Update cell list
     cell_of_part(i_part) = new_cell
+
     !Remove particle from old cell.
     if( lpart_in_cell(old_cell) .eq. i_part ) then ! if it's the las particle in the cell, relink lpart_in_cell to
         lpart_in_cell(old_cell) = l_nei( i_part )   ! an the left particle of i_part
@@ -272,9 +274,11 @@ if( new_cell .ne. old_cell ) then !Update cell list
     if( part_in_cell(old_cell) .eq. i_part ) then ! if it's the first particle in the cell, relink part_in_cell to
        part_in_cell(old_cell) = r_nei(i_part)       ! the particle to the right of i_part
     end if
-    
-    r_nei( l_nei(i_part) ) = r_nei( i_part ) ! Re-link the nighbors that stay in this cell
-    l_nei( r_nei(i_part) ) = l_nei( i_part ) 
+
+! Re-link the nighbors that stay in this cell
+if( l_nei(i_part) .ne. 0 ) r_nei( l_nei(i_part) ) = r_nei( i_part )
+
+if( r_nei(i_part) .ne. 0 ) l_nei( r_nei(i_part) ) = l_nei( i_part ) 
    
    
     !Add particle to new cell 
@@ -314,10 +318,6 @@ do i_cell = 1, n_cells_tot
     ! Only half the neighbors are given, in order to loop over all neighbor
     ! pairs only once
 end do
-
-!DEBUG
-!print*,"n_nei_tot",n_nei_tot
-!/DEBUG
 
 do i_cell = 1, n_cells_tot
     call make_cell_list(i_cell, n_cells, n_dim, n_nei_tot, cell_neigh_ls_tot(i_cell,:))
