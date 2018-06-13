@@ -177,9 +177,14 @@ subroutine fluid_wall(inter_type)
               ! 
               !------- Top  Wall interaction 
 
-              if (r0(3,i_part) > boundary(3)-z_head ) then         
+              if (r0(3,i_part) .gt. boundary(3)-z_head ) then         
                   v(3,i_part) = -abs(v(3,i_part) )
                   r0(3,i_part) = boundary(3)-z_head 
+                  If ( a_type(i_part) .eq. 3 ) then ! if solvent, then put particle last in linked list
+                      call update_part_cell(r0(:,i_part), i_part, n_dim, n_cells, n_cells_tot,inv_l_cell, n_mon_tot, part_in_cell, lpart_in_cell,r_nei, l_nei, 2, cell_of_part)
+                  Else ! if particle is not in the solvent, then put particle first
+                      call update_part_cell(r0(:,i_part), i_part, n_dim, n_cells, n_cells_tot,inv_l_cell, n_mon_tot, part_in_cell, lpart_in_cell ,r_nei, l_nei, 1, cell_of_part)
+                  End if
               end if
 
           end do
